@@ -33,7 +33,7 @@ export function GameLayout({ caseTitle, caseDescription, score, children }: Game
         </Card>
 
         <footer className="text-center mt-6 text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} Cyber Sleuth. Become the hunter.</p>
+            <p>&copy; {new Date().getFullYear()} Bug Hunters. Become the hunter.</p>
         </footer>
       </main>
     </div>
