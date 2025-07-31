@@ -22,6 +22,8 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
     const { toast } = useToast();
 
     const handleGetHint = () => {
+        if (isOpen) return;
+    
         setError(null);
         setHint(null);
         startTransition(async () => {
@@ -41,6 +43,7 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                 setHint(result.hint);
             }
         });
+        setIsOpen(true);
     };
     
     return (
@@ -72,7 +75,8 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                     ) : hint ? (
                         <p className="text-lg text-center font-medium">{hint}</p>
                     ) : (
-                        <p className="text-muted-foreground">Click the button to get a hint.</p>
+                        // This case should ideally not be reached if the dialog is only opened after a hint is fetched
+                        <p className="text-muted-foreground">No hint available yet.</p>
                     )}
                 </div>
                  <DialogFooter>

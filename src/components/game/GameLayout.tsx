@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/Logo";
+import { InstallButton } from "./InstallButton";
 
 interface GameLayoutProps {
   caseTitle: string;
@@ -16,6 +17,7 @@ export function GameLayout({ caseTitle, caseDescription, score, children }: Game
         <header className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <Logo />
           <div className="flex items-center gap-4">
+            <InstallButton />
             <Badge variant="outline" className="text-lg py-1 px-4">
                 Score: <span className="font-bold ml-2 text-accent">{score}</span>
             </Badge>
