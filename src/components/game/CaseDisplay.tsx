@@ -44,10 +44,8 @@ export function CaseDisplay({ puzzle }: CaseDisplayProps) {
                     http://suspicious-site.com
                 </div>
             </CardHeader>
-            <CardContent className="p-0">
-                <pre className="w-full bg-black/50 text-white p-4 overflow-x-auto text-sm font-code">
-                    <code>{puzzle.content}</code>
-                </pre>
+            <CardContent className="p-4">
+                <div dangerouslySetInnerHTML={{ __html: puzzle.content }} className="prose prose-invert prose-sm max-w-none font-code" />
             </CardContent>
           </Card>
         );
