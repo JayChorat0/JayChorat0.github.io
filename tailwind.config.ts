@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        body: ['"Source Code Pro"', 'monospace'],
+        headline: ['"VT323"', 'monospace'],
         code: ['"Source Code Pro"', 'monospace'],
       },
       colors: {

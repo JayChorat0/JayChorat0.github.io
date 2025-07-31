@@ -20,20 +20,20 @@ export function CaseDisplay({ puzzle }: CaseDisplayProps) {
     switch (puzzle.type) {
       case "email":
         return (
-          <Card className="bg-background/50">
+          <Card className="bg-background/50 border-primary/20">
             <CardHeader>
-              <CardTitle className="text-lg">Incoming Message</CardTitle>
-              <CardDescription>{puzzle.description}</CardDescription>
+              <CardTitle className="text-lg font-code">Incoming Message</CardTitle>
+              <CardDescription className="font-code">{puzzle.description}</CardDescription>
             </CardHeader>
-            <Separator />
+            <Separator className="bg-primary/20" />
             <CardContent className="p-6 pt-4">
-                <div dangerouslySetInnerHTML={{ __html: puzzle.content }} className="prose prose-invert prose-sm max-w-none" />
+                <div dangerouslySetInnerHTML={{ __html: puzzle.content }} className="prose prose-invert prose-sm max-w-none font-code" />
             </CardContent>
           </Card>
         );
       case "website":
         return (
-          <Card className="bg-background/50 overflow-hidden">
+          <Card className="bg-background/50 overflow-hidden border-primary/20">
             <CardHeader className="bg-muted/30 p-2 flex-row items-center space-y-0">
                 <div className="flex gap-1.5">
                     <span className="h-3 w-3 rounded-full bg-red-500"></span>
@@ -45,7 +45,7 @@ export function CaseDisplay({ puzzle }: CaseDisplayProps) {
                 </div>
             </CardHeader>
             <CardContent className="p-0">
-                <pre className="w-full bg-gray-900 text-white p-4 overflow-x-auto text-sm font-code">
+                <pre className="w-full bg-black/50 text-white p-4 overflow-x-auto text-sm font-code">
                     <code>{puzzle.content}</code>
                 </pre>
             </CardContent>
@@ -53,7 +53,7 @@ export function CaseDisplay({ puzzle }: CaseDisplayProps) {
         );
       case "terminal":
         return (
-            <Card className="bg-black/80 font-code text-green-400 overflow-hidden">
+            <Card className="bg-black/80 font-code text-primary overflow-hidden border-primary/20">
                 <CardHeader className="bg-gray-800/50 p-2 flex-row items-center space-y-0">
                     <Terminal className="h-4 w-4 mr-2" />
                     <p className="text-sm text-gray-300">/bin/zsh</p>
@@ -72,7 +72,7 @@ export function CaseDisplay({ puzzle }: CaseDisplayProps) {
     <div>
         <div className="flex items-center text-lg font-semibold mb-4 text-muted-foreground">
             <PuzzleIcon type={puzzle.type} />
-            <h3 className="text-xl font-headline">{puzzle.title}</h3>
+            <h3 className="text-2xl font-headline tracking-wide">{puzzle.title}</h3>
         </div>
       {renderContent()}
     </div>
