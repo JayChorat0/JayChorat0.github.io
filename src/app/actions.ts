@@ -20,3 +20,13 @@ export async function getHintAction(input: RequestPuzzleHintInput): Promise<{ hi
     return { error: "Failed to generate a hint. The AI model might be unavailable." };
   }
 }
+
+export async function loginAction(data: FormData): Promise<{ success: boolean; message: string }>{
+    const username = data.get('username');
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    // In a real app, you'd validate this against a database.
+    if (username) {
+        return { success: true, message: `Welcome, ${username}!` };
+    }
+    return { success: false, message: 'Invalid credentials' };
+};

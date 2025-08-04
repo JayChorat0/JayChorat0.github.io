@@ -86,3 +86,41 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(to right, hsl(var(--primary) / 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--primary) / 0.1) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+  }
+
+  .animated-grid-background {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .animated-grid-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    z-index: 0;
+    background-image:
+        linear-gradient(to right, hsl(var(--primary) / 0.2) 1px, transparent 1px),
+        linear-gradient(to bottom, hsl(var(--primary) / 0.2) 1px, transparent 1px);
+    background-size: 3.5rem 3.5rem;
+    animation: moveGrid 20s linear infinite;
+  }
+}
+
+@keyframes moveGrid {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-50%, -50%);
+  }
+}

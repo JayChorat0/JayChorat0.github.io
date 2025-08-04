@@ -1,123 +1,105 @@
-"use client";
 
-import React, { useState, useTransition } from "react";
-import { GameLayout } from "@/components/game/GameLayout";
-import { CaseDisplay } from "@/components/game/CaseDisplay";
-import { HintButton } from "@/components/game/HintButton";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { cases, type Case, type Puzzle } from "@/lib/cases";
-import { cn } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
+'use client';
 
-type GameState = {
-  currentCaseIndex: number;
-  currentPuzzleIndex: number;
-  score: number;
-  solvedPuzzles: Set<string>;
-};
+import React, { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Logo } from '@/components/Logo';
+import { cn } from '@/lib/utils';
+import { loginAction } from './actions';
+import { Loader2, KeyRound } from 'lucide-react';
 
-export default function CyberSleuthPage() {
-  const [gameState, setGameState] = useState<GameState>({
-    currentCaseIndex: 0,
-    currentPuzzleIndex: 0,
-    score: 0,
-    solvedPuzzles: new Set(),
-  });
-  const [userInput, setUserInput] = useState("");
-  const [feedback, setFeedback] = useState<{ type: "correct" | "incorrect"; message: string } | null>(null);
+export default function LoginPage() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
-  const currentCase: Case = cases[gameState.currentCaseIndex];
-  const currentPuzzle: Puzzle = currentCase.puzzles[gameState.currentPuzzleIndex];
-  const isPuzzleSolved = gameState.solvedPuzzles.has(currentPuzzle.id);
-
-  const handleNext = () => {
-    setFeedback(null);
-    setUserInput("");
-
-    if (gameState.currentPuzzleIndex < currentCase.puzzles.length - 1) {
-      setGameState((prev) => ({
-        ...prev,
-        currentPuzzleIndex: prev.currentPuzzleIndex + 1,
-      }));
-    } else if (gameState.currentCaseIndex < cases.length - 1) {
-      setGameState((prev) => ({
-        ...prev,
-        currentCaseIndex: prev.currentCaseIndex + 1,
-        currentPuzzleIndex: 0,
-      }));
-    } else {
-      // Game finished
-      setFeedback({ type: 'correct', message: "Congratulations! You've solved all cases!" });
-    }
-  };
-  
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!userInput.trim() || isPuzzleSolved) return;
-
-    if (userInput.trim().toLowerCase() === currentPuzzle.solution.toLowerCase()) {
-      setFeedback({ type: "correct", message: `Correct! +${currentPuzzle.points} points` });
-      setGameState((prev) => ({
-        ...prev,
-        score: prev.score + currentPuzzle.points,
-        solvedPuzzles: new Set(prev.solvedPuzzles).add(currentPuzzle.id),
-      }));
-    } else {
-      setFeedback({ type: "incorrect", message: "Incorrect. Try another approach." });
-      setGameState(prev => ({ ...prev, score: Math.max(0, prev.score - 5) }));
-    }
+  const handleSubmit = (formData: FormData) => {
+    setError(null);
+    startTransition(async () => {
+      const result = await loginAction(formData);
+      if (result.success) {
+        router.push('/play');
+      } else {
+        setError(result.message);
+      }
+    });
   };
 
   return (
-    <GameLayout
-      caseTitle={currentCase.title}
-      caseDescription={currentCase.description}
-      score={gameState.score}
-    >
-      <CaseDisplay puzzle={currentPuzzle} />
-
-      <div className="mt-6">
-        <p className="text-muted-foreground font-code mb-2">{currentPuzzle.prompt}</p>
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-2">
-          <Input
-            type="text"
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            placeholder="Enter your answer..."
-            className="font-code flex-grow"
-            disabled={isPuzzleSolved}
-            aria-label="Answer input"
-          />
-          <Button type="submit" disabled={isPuzzleSolved} className="w-full sm:w-auto">
-            Submit
-          </Button>
-        </form>
-
-        <div className="mt-4 h-12 flex items-center justify-between">
-            {feedback && (
-                <p className={cn(
-                    "text-sm font-semibold transition-all duration-300",
-                    feedback.type === 'correct' ? 'text-green-400' : 'text-red-400',
-                )}>
-                    {feedback.message}
-                </p>
-            )}
-            
-            {isPuzzleSolved && (
-                 <Button onClick={handleNext} variant="outline" className="ml-auto">
-                    {gameState.currentPuzzleIndex < currentCase.puzzles.length - 1 ? 'Next Puzzle' : 'Next Case'}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-            )}
-        </div>
-        
-        {!isPuzzleSolved && (
-            <div className="mt-4 border-t border-dashed pt-4">
-                 <HintButton puzzle={currentPuzzle} userProgress={userInput} />
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 animated-grid-background">
+       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />
+      <Card className="w-full max-w-sm z-10 animate-fade-in-up border-primary/20 bg-card/80 shadow-2xl shadow-primary/10">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4">
+             <Logo />
+          </div>
+          <CardTitle className="text-2xl font-headline tracking-widest text-accent">Agent Login</CardTitle>
+          <CardDescription>Enter the network to begin your mission.</CardDescription>
+        </CardHeader>
+        <form action={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Codename</Label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="Your agent codename..."
+                required
+                className="font-code"
+                disabled={isPending}
+              />
             </div>
-        )}
-      </div>
-    </GameLayout>
+            <div className="space-y-2">
+              <Label htmlFor="password">Passkey</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Your secret passkey..."
+                required
+                className="font-code"
+                disabled={isPending}
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col">
+            {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Accessing...
+                </>
+              ) : (
+                <>
+                  <KeyRound className="mr-2 h-4 w-4" />
+                  Initiate Connection
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+        <style jsx>{`
+            @keyframes fade-in-up {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .animate-fade-in-up {
+                animation: fade-in-up 0.7s ease-out forwards;
+            }
+        `}</style>
+    </main>
   );
 }
