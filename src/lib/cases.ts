@@ -1,3 +1,4 @@
+
 export interface Puzzle {
   id: string;
   type: "email" | "website" | "terminal";
@@ -42,24 +43,19 @@ export const cases: Case[] = [
       {
         id: "c01p02",
         type: "website",
-        title: "Investigate Leaked Credentials",
-        description: "The phishing link led to a simple login page. The developer seems to have left a comment in the source code.",
+        title: "Analyze Defaced Website",
+        description: "The phishing link led to a defaced website. The hacker left a message.",
         content: `
-          <html>
-            <head><title>Login</title></head>
-            <body>
-              <h1>Bank Login</h1>
-              <input type="text" placeholder="username" />
-              <input type="password" placeholder="password" />
-              <button>Login</button>
-              <!-- TODO: Remove test credentials before deployment. User: admin Pass: cyber-sleuth-123 -->
-            </body>
-          </html>
+          <div class="text-center p-8">
+            <h1 class="text-5xl font-bold text-red-500">YOU'VE BEEN HACKED!</h1>
+            <p class="mt-4 text-xl">Your security is a joke.</p>
+            <p class="mt-8 font-mono bg-gray-800 p-4 rounded">I left a little secret for you. The keyword is: <span class="text-green-400 font-bold">sentinel</span></p>
+          </div>
         `,
-        prompt: "What is the password found in the website's source code?",
-        solution: "cyber-sleuth-123",
-        points: 50,
-        aiPuzzleDescription: "The user is looking at the HTML source of a webpage. They need to find a password left inside an HTML comment."
+        prompt: "What is the keyword left by the hacker on the page?",
+        solution: "sentinel",
+        points: 25,
+        aiPuzzleDescription: "The user is looking at a defaced webpage. They need to find a specific keyword that is clearly visible in the text content of the page."
       }
     ],
   },
