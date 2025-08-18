@@ -3,7 +3,7 @@
 
 import { requestPuzzleHint } from "@/ai/flows/generate-hint";
 import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
-import { auth as adminAuth, db } from "@/lib/firebase-admin"; // We need admin for server-side actions
+import { auth, db } from "@/lib/firebase-admin"; // We need admin for server-side actions
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
 
@@ -27,7 +27,7 @@ export async function registerAction(data: FormData): Promise<{ success: boolean
     }
     
     try {
-        const userCredential = await adminAuth.createUser({ email, password });
+        const userCredential = await auth.createUser({ email, password });
         await setInitialUserData(userCredential.uid, email);
         // This won't sign the user in on the client, but it prepares their account.
         // The client will need to sign in separately after registration.
@@ -54,7 +54,7 @@ export async function loginAction(data: FormData): Promise<{ success: boolean; m
     try {
         // The admin SDK cannot verify passwords. The client-side sign-in will handle the password check.
         // We just verify the user exists to provide a better UX.
-        await adminAuth.getUserByEmail(email);
+        await auth.getUserByEmail(email);
         revalidatePath("/", "layout");
         return { success: true, message: `Welcome back!` };
     } catch (error: any) {

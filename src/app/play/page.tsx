@@ -4,8 +4,8 @@
 import React, { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth } from "@/lib/firebase";
+import { getGameState, updateGameState } from "@/app/actions";
 
 import { GameLayout } from "@/components/game/GameLayout";
 import { CaseDisplay } from "@/components/game/CaseDisplay";
@@ -40,20 +40,18 @@ export default function CyberSleuthPage() {
   useEffect(() => {
     if (user) {
       const loadGameState = async () => {
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setGameState({
-              currentCaseIndex: data.currentCaseIndex || 0,
-              currentPuzzleIndex: data.currentPuzzleIndex || 0,
-              score: data.score || 0,
-              solvedPuzzles: data.solvedPuzzles || [],
+        const state = await getGameState(user.uid);
+        if (state) {
+           setGameState({
+              currentCaseIndex: state.currentCaseIndex || 0,
+              currentPuzzleIndex: state.currentPuzzleIndex || 0,
+              score: state.score || 0,
+              solvedPuzzles: state.solvedPuzzles || [],
           });
         } else {
-            // New user, create initial state
+            // This case might happen for a new user if their doc wasn't created yet
+            // but registerAction should handle it. We can set a default.
             const initialState = { currentCaseIndex: 0, currentPuzzleIndex: 0, score: 0, solvedPuzzles: []};
-            await setDoc(userDocRef, initialState);
             setGameState(initialState);
         }
       };
@@ -61,11 +59,10 @@ export default function CyberSleuthPage() {
     }
   }, [user]);
 
-  const updateFirestoreGameState = async (newState: GameState) => {
+  const updateServerGameState = async (newState: GameState) => {
       if (!user) return;
       startTransition(async () => {
-        const userDocRef = doc(db, "users", user.uid);
-        await setDoc(userDocRef, newState, { merge: true });
+        await updateGameState(user.uid, newState);
       });
   }
 
@@ -98,7 +95,7 @@ export default function CyberSleuthPage() {
     }
     
     setGameState(newGameState);
-    updateFirestoreGameState(newGameState);
+    updateServerGameState(newGameState);
   };
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -114,13 +111,13 @@ export default function CyberSleuthPage() {
         solvedPuzzles: [...gameState.solvedPuzzles, currentPuzzle.id],
       };
       setGameState(newGameState);
-      updateFirestoreGameState(newGameState);
+      updateServerGameState(newGameState);
 
     } else {
       setFeedback({ type: "incorrect", message: "Incorrect. Try another approach." });
       const newGameState = { ...gameState, score: Math.max(0, gameState.score - 5) };
       setGameState(newGameState);
-      updateFirestoreGameState(newGameState);
+      updateServerGameState(newGameState);
     }
   };
 
@@ -177,4 +174,3 @@ export default function CyberSleuthPage() {
     </GameLayout>
   );
 }
-
