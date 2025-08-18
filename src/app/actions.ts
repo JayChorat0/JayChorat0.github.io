@@ -3,7 +3,8 @@
 
 import { requestPuzzleHint } from "@/ai/flows/generate-hint";
 import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
-import { auth, db } from "@/lib/firebase-admin"; // We need admin for server-side actions
+import { auth as adminAuth, db } from "@/lib/firebase-admin"; // We need admin for server-side actions
+import { auth as clientAuth } from "@/lib/firebase"; // Client auth for user actions
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { revalidatePath } from "next/cache";
@@ -28,10 +29,8 @@ export async function registerAction(data: FormData): Promise<{ success: boolean
     }
     
     try {
-        const userCredential = await auth.createUser({ email, password });
+        const userCredential = await adminAuth.createUser({ email, password });
         await setInitialUserData(userCredential.uid, email);
-        // This is a bit of a hack to sign the user in on the server, then revalidate to refresh client state
-        // In a real app, you'd manage session cookies.
         revalidatePath("/", "layout");
         return { success: true, message: 'Registration successful!' };
 
@@ -52,7 +51,7 @@ export async function loginAction(data: FormData): Promise<{ success: boolean; m
     try {
         // We can't truly "log in" on the server with client SDK. 
         // We just verify user exists. Client will handle actual login state.
-        const user = await auth.getUserByEmail(email);
+        const user = await adminAuth.getUserByEmail(email);
         // In a real app we would verify password, but admin SDK doesn't do that.
         // The client-side sign-in will handle the password check.
         revalidatePath("/", "layout");
@@ -96,4 +95,3 @@ export async function updateGameState(userId: string, newState: any) {
     await setDoc(userDocRef, newState, { merge: true });
     revalidatePath("/play");
 }
-
