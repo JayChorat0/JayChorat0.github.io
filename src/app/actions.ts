@@ -4,30 +4,23 @@
 import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
 import { requestPuzzleHint } from "@/ai/flows/generate-hint";
 import { revalidatePath } from "next/cache";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { app } from "@/lib/firebase";
 
-// It is safe to import the admin SDK here. It will only be initialized and used in server-side actions.
-import * as admin from 'firebase-admin';
 
-// Initialize the app if it's not already initialized.
-if (!admin.apps.length) {
-    // In a deployed environment, the SDK automatically discovers credentials.
-    // For local development, you might need to set GOOGLE_APPLICATION_CREDENTIALS.
-    admin.initializeApp();
-}
-const db = admin.firestore();
+const db = getFirestore(app);
 
 
 /**
  * Sets the initial user data in Firestore after registration.
- * This is a server action and is secure because it uses the admin SDK.
  */
 export async function createInitialUserData(userId: string, email: string): Promise<{ success: boolean; message: string }> {
     if (!userId || !email) {
         return { success: false, message: 'User ID and email are required.' };
     }
     try {
-        const userDocRef = db.collection("users").doc(userId);
-        await userDocRef.set({
+        const userDocRef = doc(db, "users", userId);
+        await setDoc(userDocRef, {
             email: email,
             score: 0,
             solvedPuzzles: [],
@@ -61,9 +54,9 @@ export async function getHintAction(input: RequestPuzzleHintInput): Promise<{ hi
 
 export async function getGameState(userId: string) {
     try {
-        const userDocRef = db.collection("users").doc(userId);
-        const userDoc = await userDocRef.get();
-        if (userDoc.exists) {
+        const userDocRef = doc(db, "users", userId);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
             const data = userDoc.data();
             // Ensure all fields have default values if they are missing
             return {
@@ -82,8 +75,8 @@ export async function getGameState(userId: string) {
 
 export async function updateGameState(userId: string, newState: any) {
     try {
-        const userDocRef = db.collection("users").doc(userId);
-        await userDocRef.set(newState, { merge: true });
+        const userDocRef = doc(db, "users", userId);
+        await setDoc(userDocRef, newState, { merge: true });
         revalidatePath("/play");
     } catch (error) {
         console.error("Error updating game state:", error);
