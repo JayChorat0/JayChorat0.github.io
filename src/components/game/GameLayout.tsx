@@ -1,7 +1,18 @@
+
+"use client";
+
+import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Logo } from "@/components/Logo";
 import { InstallButton } from "./InstallButton";
+import { Button } from "../ui/button";
+import { LogOut } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+
 
 interface GameLayoutProps {
   caseTitle: string;
@@ -11,6 +22,18 @@ interface GameLayoutProps {
 }
 
 export function GameLayout({ caseTitle, caseDescription, score, children }: GameLayoutProps) {
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push('/');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background text-foreground">
       <main className="w-full max-w-4xl mx-auto">
@@ -21,6 +44,19 @@ export function GameLayout({ caseTitle, caseDescription, score, children }: Game
             <Badge variant="outline" className="text-lg py-1 px-4">
                 Score: <span className="font-bold ml-2 text-accent">{score}</span>
             </Badge>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                         <Button onClick={handleSignOut} variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">
+                            <LogOut className="h-5 w-5" />
+                            <span className="sr-only">Exit Game</span>
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Exit Game</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
           </div>
         </header>
 

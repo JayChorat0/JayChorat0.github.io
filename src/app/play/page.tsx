@@ -5,7 +5,7 @@ import React, { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 
 
 import { GameLayout } from "@/components/game/GameLayout";
@@ -40,37 +40,39 @@ export default function CyberSleuthPage() {
 
   useEffect(() => {
     if (user) {
-      const loadGameState = async () => {
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-
+      const userDocRef = doc(db, "users", user.uid);
+      
+      const unsubscribe = onSnapshot(userDocRef, (userDoc) => {
         if (userDoc.exists()) {
            const data = userDoc.data();
            setGameState({
-              currentCaseIndex: data.currentCaseIndex || 0,
-              currentPuzzleIndex: data.currentPuzzleIndex || 0,
-              score: data.score || 0,
-              solvedPuzzles: data.solvedPuzzles || [],
+              currentCaseIndex: data.currentCaseIndex ?? 0,
+              currentPuzzleIndex: data.currentPuzzleIndex ?? 0,
+              score: data.score ?? 0,
+              solvedPuzzles: data.solvedPuzzles ?? [],
           });
         } else {
             // This can happen if the doc creation failed during registration.
             // Let's create it here if it doesn't exist.
-            const initialState = { 
+            console.log("User document not found, creating one.");
+            const initialState: GameState & { email: string | null } = { 
                 email: user.email,
                 score: 0,
                 solvedPuzzles: [],
                 currentCaseIndex: 0,
                 currentPuzzleIndex: 0,
             };
-            await setDoc(userDocRef, initialState);
-            setGameState(initialState);
+            setDoc(userDocRef, initialState).then(() => {
+                 setGameState(initialState);
+            });
         }
-      };
-      loadGameState();
+      });
+
+      return () => unsubscribe();
     }
   }, [user]);
 
-  const updateServerGameState = async (newState: GameState) => {
+  const updateServerGameState = async (newState: Partial<GameState>) => {
       if (!user) return;
       startTransition(async () => {
         const userDocRef = doc(db, "users", user.uid);
@@ -94,19 +96,18 @@ export default function CyberSleuthPage() {
     setFeedback(null);
     setUserInput("");
     
-    let newGameState: GameState;
+    let newGameState: Partial<GameState>;
 
     if (gameState.currentPuzzleIndex < currentCase.puzzles.length - 1) {
-        newGameState = { ...gameState, currentPuzzleIndex: gameState.currentPuzzleIndex + 1 };
+        newGameState = { currentPuzzleIndex: gameState.currentPuzzleIndex + 1 };
     } else if (gameState.currentCaseIndex < cases.length - 1) {
-       newGameState = { ...gameState, currentCaseIndex: gameState.currentCaseIndex + 1, currentPuzzleIndex: 0 };
+       newGameState = { currentCaseIndex: gameState.currentCaseIndex + 1, currentPuzzleIndex: 0 };
     } else {
       // Game finished
       setFeedback({ type: 'correct', message: "Congratulations! You've solved all cases!" });
       return; // Don't update state further
     }
     
-    setGameState(newGameState);
     updateServerGameState(newGameState);
   };
   
@@ -118,11 +119,9 @@ export default function CyberSleuthPage() {
       setFeedback({ type: "correct", message: `Correct! +${currentPuzzle.points} points` });
       
       const newGameState = {
-        ...gameState,
         score: gameState.score + currentPuzzle.points,
         solvedPuzzles: [...gameState.solvedPuzzles, currentPuzzle.id],
       };
-      setGameState(newGameState);
       updateServerGameState(newGameState);
 
     } else {
@@ -130,9 +129,7 @@ export default function CyberSleuthPage() {
       // Only penalize if score is positive
       const newScore = Math.max(0, gameState.score - 5);
       if (newScore !== gameState.score) {
-          const newGameState = { ...gameState, score: newScore };
-          setGameState(newGameState);
-          updateServerGameState(newGameState);
+          updateServerGameState({ score: newScore });
       }
     }
   };
