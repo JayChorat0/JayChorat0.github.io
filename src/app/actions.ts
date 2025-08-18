@@ -82,7 +82,14 @@ export async function getGameState(userId: string) {
         const userDocRef = db.collection("users").doc(userId);
         const userDoc = await userDocRef.get();
         if (userDoc.exists) {
-            return userDoc.data();
+            const data = userDoc.data();
+            // Ensure all fields have default values if they are missing
+            return {
+                currentCaseIndex: data?.currentCaseIndex ?? 0,
+                currentPuzzleIndex: data?.currentPuzzleIndex ?? 0,
+                score: data?.score ?? 0,
+                solvedPuzzles: data?.solvedPuzzles ?? [],
+            };
         }
         return null;
     } catch (error) {
