@@ -4,12 +4,11 @@
 import { requestPuzzleHint } from "@/ai/flows/generate-hint";
 import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
 import { auth, db } from "@/lib/firebase-admin"; // We need admin for server-side actions
-import { doc, setDoc, getDoc } from "firebase/firestore";
 import { revalidatePath } from "next/cache";
 
 async function setInitialUserData(userId: string, email: string) {
-    const userDocRef = doc(db, "users", userId);
-    await setDoc(userDocRef, {
+    const userDocRef = db.collection("users").doc(userId);
+    await userDocRef.set({
         email: email,
         score: 0,
         solvedPuzzles: [],
@@ -27,10 +26,8 @@ export async function registerAction(data: FormData): Promise<{ success: boolean
     }
     
     try {
-        const userCredential = await auth.createUser({ email, password });
-        await setInitialUserData(userCredential.uid, email);
-        // This won't sign the user in on the client, but it prepares their account.
-        // The client will need to sign in separately after registration.
+        const userRecord = await auth.createUser({ email, password });
+        await setInitialUserData(userRecord.uid, email);
         revalidatePath("/", "layout");
         return { success: true, message: 'Registration successful! Please log in.' };
 
@@ -38,6 +35,7 @@ export async function registerAction(data: FormData): Promise<{ success: boolean
         if (error.code === 'auth/email-already-exists') {
             return { success: false, message: 'An account with this email already exists.' };
         }
+        console.error("Registration Error:", error);
         return { success: false, message: error.message || 'An unknown error occurred.' };
     }
 }
@@ -45,15 +43,14 @@ export async function registerAction(data: FormData): Promise<{ success: boolean
 
 export async function loginAction(data: FormData): Promise<{ success: boolean; message: string }> {
     const email = data.get('email') as string;
-    const password = data.get('password') as string;
-
-    if (!email || !password) {
-        return { success: false, message: 'Email and password are required.' };
+    
+    if (!email) {
+        return { success: false, message: 'Email is required.' };
     }
 
     try {
-        // The admin SDK cannot verify passwords. The client-side sign-in will handle the password check.
-        // We just verify the user exists to provide a better UX.
+        // The admin SDK can't verify passwords, but we can check if the user exists.
+        // The actual sign-in with password happens on the client.
         await auth.getUserByEmail(email);
         revalidatePath("/", "layout");
         return { success: true, message: `Welcome back!` };
@@ -61,14 +58,14 @@ export async function loginAction(data: FormData): Promise<{ success: boolean; m
         if (error.code === 'auth/user-not-found') {
             return { success: false, message: 'No user found with this email.' };
         }
-        // Don't leak specific error info
+        console.error("Login Action Error:", error);
+        // Don't leak specific error info on login
         return { success: false, message: 'Invalid credentials or server error.' };
     }
 };
 
 export async function getHintAction(input: RequestPuzzleHintInput): Promise<{ hint: string } | { error: string }> {
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000));
     const result = await requestPuzzleHint({
         puzzleDescription: input.puzzleDescription,
         userProgress: input.userProgress || "The user has not tried anything yet."
@@ -84,16 +81,16 @@ export async function getHintAction(input: RequestPuzzleHintInput): Promise<{ hi
 }
 
 export async function getGameState(userId: string) {
-    const userDocRef = doc(db, "users", userId);
-    const userDoc = await getDoc(userDocRef);
-    if (userDoc.exists()) {
+    const userDocRef = db.collection("users").doc(userId);
+    const userDoc = await userDocRef.get();
+    if (userDoc.exists) {
         return userDoc.data();
     }
     return null;
 }
 
 export async function updateGameState(userId: string, newState: any) {
-    const userDocRef = doc(db, "users", userId);
-    await setDoc(userDocRef, newState, { merge: true });
+    const userDocRef = db.collection("users").doc(userId);
+    await userDocRef.set(newState, { merge: true });
     revalidatePath("/play");
 }

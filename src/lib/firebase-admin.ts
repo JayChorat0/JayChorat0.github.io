@@ -1,7 +1,8 @@
 
 import * as admin from 'firebase-admin';
+import { getApps } from 'firebase-admin/app';
 
-if (!admin.apps.length) {
+if (!getApps().length) {
   try {
     // When running in a Google Cloud environment, the credentials will be
     // automatically available. In a local environment, you would need

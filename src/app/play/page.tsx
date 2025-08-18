@@ -20,7 +20,7 @@ type GameState = {
   currentCaseIndex: number;
   currentPuzzleIndex: number;
   score: number;
-  solvedPuzzles: string[]; // Store as string array for Firestore
+  solvedPuzzles: string[];
 };
 
 export default function CyberSleuthPage() {
@@ -50,9 +50,11 @@ export default function CyberSleuthPage() {
           });
         } else {
             // This case might happen for a new user if their doc wasn't created yet
-            // but registerAction should handle it. We can set a default.
+            // by the registerAction. We can set a default.
             const initialState = { currentCaseIndex: 0, currentPuzzleIndex: 0, score: 0, solvedPuzzles: []};
             setGameState(initialState);
+            // It's possible the doc doesn't exist yet, we could try to create it here too
+            // but for now we rely on the registration flow.
         }
       };
       loadGameState();
@@ -100,7 +102,7 @@ export default function CyberSleuthPage() {
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!userInput.trim() || isPuzzleSolved) return;
+    if (!userInput.trim() || isPuzzleSolved || isPending) return;
 
     if (userInput.trim().toLowerCase() === currentPuzzle.solution.toLowerCase()) {
       setFeedback({ type: "correct", message: `Correct! +${currentPuzzle.points} points` });
@@ -115,9 +117,13 @@ export default function CyberSleuthPage() {
 
     } else {
       setFeedback({ type: "incorrect", message: "Incorrect. Try another approach." });
-      const newGameState = { ...gameState, score: Math.max(0, gameState.score - 5) };
-      setGameState(newGameState);
-      updateServerGameState(newGameState);
+      // Only penalize if score is positive
+      const newScore = Math.max(0, gameState.score - 5);
+      if (newScore !== gameState.score) {
+          const newGameState = { ...gameState, score: newScore };
+          setGameState(newGameState);
+          updateServerGameState(newGameState);
+      }
     }
   };
 
