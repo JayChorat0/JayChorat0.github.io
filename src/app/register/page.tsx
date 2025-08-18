@@ -60,7 +60,7 @@ export default function RegisterPage() {
         }
 
       } catch (clientError: any) {
-        let message = "An error occurred during registration.";
+        let message = clientError.message || "An error occurred during registration.";
         if (clientError.code === 'auth/email-already-in-use') {
             message = "An account with this email already exists.";
         } else if (clientError.code === 'auth/weak-password') {

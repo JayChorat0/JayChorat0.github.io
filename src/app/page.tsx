@@ -40,7 +40,7 @@ export default function LoginPage() {
           router.push('/play');
           router.refresh(); // Ensures layout re-renders with user state
         } catch (clientError: any) {
-           let message = 'An error occurred during login.';
+           let message = clientError.message || 'An error occurred during login.';
            if (clientError.code === 'auth/user-not-found' || clientError.code === 'auth/wrong-password' || clientError.code === 'auth/invalid-credential') {
              message = 'Invalid email or password. Please try again.';
            }
