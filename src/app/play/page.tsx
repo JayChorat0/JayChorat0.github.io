@@ -1,7 +1,12 @@
 
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
 import { GameLayout } from "@/components/game/GameLayout";
 import { CaseDisplay } from "@/components/game/CaseDisplay";
 import { HintButton } from "@/components/game/HintButton";
@@ -9,48 +14,91 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cases, type Case, type Puzzle } from "@/lib/cases";
 import { cn } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 type GameState = {
   currentCaseIndex: number;
   currentPuzzleIndex: number;
   score: number;
-  solvedPuzzles: Set<string>;
+  solvedPuzzles: string[]; // Store as string array for Firestore
 };
 
 export default function CyberSleuthPage() {
-  const [gameState, setGameState] = useState<GameState>({
-    currentCaseIndex: 0,
-    currentPuzzleIndex: 0,
-    score: 0,
-    solvedPuzzles: new Set(),
-  });
+  const [user, loading, error] = useAuthState(auth);
+  const router = useRouter();
+  const [gameState, setGameState] = useState<GameState | null>(null);
   const [userInput, setUserInput] = useState("");
   const [feedback, setFeedback] = useState<{ type: "correct" | "incorrect"; message: string } | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
+    if (user) {
+      const loadGameState = async () => {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setGameState({
+              currentCaseIndex: data.currentCaseIndex || 0,
+              currentPuzzleIndex: data.currentPuzzleIndex || 0,
+              score: data.score || 0,
+              solvedPuzzles: data.solvedPuzzles || [],
+          });
+        } else {
+            // New user, create initial state
+            const initialState = { currentCaseIndex: 0, currentPuzzleIndex: 0, score: 0, solvedPuzzles: []};
+            await setDoc(userDocRef, initialState);
+            setGameState(initialState);
+        }
+      };
+      loadGameState();
+    }
+  }, [user]);
+
+  const updateFirestoreGameState = async (newState: GameState) => {
+      if (!user) return;
+      startTransition(async () => {
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, newState, { merge: true });
+      });
+  }
+
+  if (loading || !gameState || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin" />
+      </div>
+    );
+  }
 
   const currentCase: Case = cases[gameState.currentCaseIndex];
   const currentPuzzle: Puzzle = currentCase.puzzles[gameState.currentPuzzleIndex];
-  const isPuzzleSolved = gameState.solvedPuzzles.has(currentPuzzle.id);
+  const isPuzzleSolved = gameState.solvedPuzzles.includes(currentPuzzle.id);
 
   const handleNext = () => {
     setFeedback(null);
     setUserInput("");
+    
+    let newGameState: GameState;
 
     if (gameState.currentPuzzleIndex < currentCase.puzzles.length - 1) {
-      setGameState((prev) => ({
-        ...prev,
-        currentPuzzleIndex: prev.currentPuzzleIndex + 1,
-      }));
+        newGameState = { ...gameState, currentPuzzleIndex: gameState.currentPuzzleIndex + 1 };
     } else if (gameState.currentCaseIndex < cases.length - 1) {
-      setGameState((prev) => ({
-        ...prev,
-        currentCaseIndex: prev.currentCaseIndex + 1,
-        currentPuzzleIndex: 0,
-      }));
+       newGameState = { ...gameState, currentCaseIndex: gameState.currentCaseIndex + 1, currentPuzzleIndex: 0 };
     } else {
       // Game finished
       setFeedback({ type: 'correct', message: "Congratulations! You've solved all cases!" });
+      return; // Don't update state further
     }
+    
+    setGameState(newGameState);
+    updateFirestoreGameState(newGameState);
   };
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -59,14 +107,20 @@ export default function CyberSleuthPage() {
 
     if (userInput.trim().toLowerCase() === currentPuzzle.solution.toLowerCase()) {
       setFeedback({ type: "correct", message: `Correct! +${currentPuzzle.points} points` });
-      setGameState((prev) => ({
-        ...prev,
-        score: prev.score + currentPuzzle.points,
-        solvedPuzzles: new Set(prev.solvedPuzzles).add(currentPuzzle.id),
-      }));
+      
+      const newGameState = {
+        ...gameState,
+        score: gameState.score + currentPuzzle.points,
+        solvedPuzzles: [...gameState.solvedPuzzles, currentPuzzle.id],
+      };
+      setGameState(newGameState);
+      updateFirestoreGameState(newGameState);
+
     } else {
       setFeedback({ type: "incorrect", message: "Incorrect. Try another approach." });
-      setGameState(prev => ({ ...prev, score: Math.max(0, prev.score - 5) }));
+      const newGameState = { ...gameState, score: Math.max(0, gameState.score - 5) };
+      setGameState(newGameState);
+      updateFirestoreGameState(newGameState);
     }
   };
 
@@ -87,11 +141,11 @@ export default function CyberSleuthPage() {
             onChange={(e) => setUserInput(e.target.value)}
             placeholder="Enter your answer..."
             className="font-code flex-grow"
-            disabled={isPuzzleSolved}
+            disabled={isPuzzleSolved || isPending}
             aria-label="Answer input"
           />
-          <Button type="submit" disabled={isPuzzleSolved} className="w-full sm:w-auto">
-            Submit
+          <Button type="submit" disabled={isPuzzleSolved || isPending} className="w-full sm:w-auto">
+            {isPending ? <Loader2 className="animate-spin" /> : "Submit"}
           </Button>
         </form>
 
@@ -106,7 +160,8 @@ export default function CyberSleuthPage() {
             )}
             
             {isPuzzleSolved && (
-                 <Button onClick={handleNext} variant="outline" className="ml-auto">
+                 <Button onClick={handleNext} variant="outline" className="ml-auto" disabled={isPending}>
+                     {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {gameState.currentPuzzleIndex < currentCase.puzzles.length - 1 ? 'Next Puzzle' : 'Next Case'}
                     <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -122,3 +177,4 @@ export default function CyberSleuthPage() {
     </GameLayout>
   );
 }
+
