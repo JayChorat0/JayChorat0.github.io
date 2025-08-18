@@ -4,11 +4,7 @@
 import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
 import { requestPuzzleHint } from "@/ai/flows/generate-hint";
 import { revalidatePath } from "next/cache";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import { app } from "@/lib/firebase";
-
-
-const db = getFirestore(app);
+import { db } from "@/lib/firebase-admin";
 
 
 /**
@@ -19,8 +15,8 @@ export async function createInitialUserData(userId: string, email: string): Prom
         return { success: false, message: 'User ID and email are required.' };
     }
     try {
-        const userDocRef = doc(db, "users", userId);
-        await setDoc(userDocRef, {
+        const userDocRef = db.collection("users").doc(userId);
+        await userDocRef.set({
             email: email,
             score: 0,
             solvedPuzzles: [],
@@ -31,7 +27,9 @@ export async function createInitialUserData(userId: string, email: string): Prom
         return { success: true, message: 'User data created successfully.' };
     } catch (error: any) {
         console.error("Error creating user data:", error);
-        return { success: false, message: error.message || 'An unknown error occurred creating user data.' };
+        // Provide a more specific error message if available
+        const errorMessage = error.message || 'An unknown error occurred creating user data.';
+        return { success: false, message: `Server error: ${errorMessage}` };
     }
 }
 
@@ -54,9 +52,9 @@ export async function getHintAction(input: RequestPuzzleHintInput): Promise<{ hi
 
 export async function getGameState(userId: string) {
     try {
-        const userDocRef = doc(db, "users", userId);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
+        const userDocRef = db.collection("users").doc(userId);
+        const userDoc = await userDocRef.get();
+        if (userDoc.exists) {
             const data = userDoc.data();
             // Ensure all fields have default values if they are missing
             return {
@@ -75,8 +73,8 @@ export async function getGameState(userId: string) {
 
 export async function updateGameState(userId: string, newState: any) {
     try {
-        const userDocRef = doc(db, "users", userId);
-        await setDoc(userDocRef, newState, { merge: true });
+        const userDocRef = db.collection("users").doc(userId);
+        await userDocRef.set(newState, { merge: true });
         revalidatePath("/play");
     } catch (error) {
         console.error("Error updating game state:", error);
