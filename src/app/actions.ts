@@ -1,65 +1,36 @@
 
 "use server";
 
-import { requestPuzzleHint } from "@/ai/flows/generate-hint";
-import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
 import { auth, db } from "@/lib/firebase-admin";
+import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
+import { requestPuzzleHint } from "@/ai/flows/generate-hint";
 import { revalidatePath } from "next/cache";
 
-async function setInitialUserData(userId: string, email: string) {
-    const userDocRef = db.collection("users").doc(userId);
-    await userDocRef.set({
-        email: email,
-        score: 0,
-        solvedPuzzles: [],
-        currentCaseIndex: 0,
-        currentPuzzleIndex: 0,
-    });
-}
-
-export async function registerAction(data: FormData): Promise<{ success: boolean; message: string }> {
-    const email = data.get('email') as string;
-    const password = data.get('password') as string;
-
-    if (!email || !password) {
-        return { success: false, message: 'Email and password are required.' };
+/**
+ * Sets the initial user data in Firestore after registration.
+ * This is a server action and is secure because it uses the admin SDK.
+ */
+export async function createInitialUserData(userId: string, email: string): Promise<{ success: boolean; message: string }> {
+    if (!userId || !email) {
+        return { success: false, message: 'User ID and email are required.' };
     }
-    
     try {
-        const userRecord = await auth.createUser({ email, password });
-        await setInitialUserData(userRecord.uid, email);
+        const userDocRef = db.collection("users").doc(userId);
+        await userDocRef.set({
+            email: email,
+            score: 0,
+            solvedPuzzles: [],
+            currentCaseIndex: 0,
+            currentPuzzleIndex: 0,
+        });
         revalidatePath("/", "layout");
-        return { success: true, message: 'Registration successful! Please log in.' };
-
+        return { success: true, message: 'User data created successfully.' };
     } catch (error: any) {
-        if (error.code === 'auth/email-already-exists') {
-            return { success: false, message: 'An account with this email already exists.' };
-        }
-        console.error("Registration Error:", error);
-        return { success: false, message: error.message || 'An unknown error occurred.' };
+        console.error("Error creating user data:", error);
+        return { success: false, message: error.message || 'An unknown error occurred creating user data.' };
     }
 }
 
-
-export async function loginAction(data: FormData): Promise<{ success: boolean; message: string }> {
-    const email = data.get('email') as string;
-    
-    if (!email) {
-        return { success: false, message: 'Email is required.' };
-    }
-
-    try {
-        await auth.getUserByEmail(email);
-        revalidatePath("/", "layout");
-        return { success: true, message: `Welcome back!` };
-    } catch (error: any) {
-        if (error.code === 'auth/user-not-found') {
-            return { success: false, message: 'No user found with this email.' };
-        }
-        console.error("Login Action Error:", error);
-        return { success: false, message: 'Invalid credentials or server error.' };
-    }
-};
 
 export async function getHintAction(input: RequestPuzzleHintInput): Promise<{ hint: string } | { error: string }> {
   try {

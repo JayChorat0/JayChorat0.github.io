@@ -1,22 +1,17 @@
 
 import * as admin from 'firebase-admin';
-import { getApps, initializeApp, type App } from 'firebase-admin/app';
-import { getAuth, type Auth } from 'firebase-admin/auth';
-import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 
-let firebaseApp: App;
-
-if (!getApps().length) {
-  // By not passing any configuration, the SDK will try to initialize
-  // using environment variables or other auto-discovery mechanisms.
-  // This is often sufficient in many hosting environments and avoids
-  // credential errors in local development.
-  firebaseApp = initializeApp();
-} else {
-  firebaseApp = getApps()[0];
+if (!admin.apps.length) {
+  // When running locally, you can use a service account file.
+  // In a deployed environment (like Firebase Hosting with Cloud Functions, or App Hosting),
+  // the SDK will automatically discover credentials.
+  // For this project's local dev, we will initialize without explicit credentials,
+  // which works in many simplified setups. If this fails, setting
+  // GOOGLE_APPLICATION_CREDENTIALS is the definitive solution.
+  admin.initializeApp();
 }
 
-const auth: Auth = getAuth(firebaseApp);
-const db: Firestore = getFirestore(firebaseApp);
+const auth: admin.auth.Auth = admin.auth();
+const db: admin.firestore.Firestore = admin.firestore();
 
 export { auth, db };

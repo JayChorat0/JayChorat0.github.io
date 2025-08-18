@@ -9,10 +9,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/Logo';
-import { registerAction } from '../actions';
+import { createInitialUserData } from '../actions';
 import { Loader2, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 export default function RegisterPage() {
@@ -21,27 +21,52 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleSubmit = (formData: FormData) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setError(null);
+
+    const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+    
+    if (!email || !password) {
+        setError("Email and password are required.");
+        return;
+    }
+     if (password.length < 6) {
+        setError("Password must be at least 6 characters long.");
+        return;
+    }
 
     startTransition(async () => {
-      const result = await registerAction(formData);
-      if (result.success) {
-        toast({
-          title: "Registration Successful",
-          description: "Logging you in...",
-        });
-        // After successful registration, log the user in automatically
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        // After successful client-side registration, call the server action to create the user document in Firestore.
+        const serverResult = await createInitialUserData(user.uid, email);
+
+        if (serverResult.success) {
+            toast({
+              title: "Registration Successful",
+              description: "Redirecting to the game...",
+            });
             router.push('/play');
-        } catch (e) {
-            setError("Created account, but failed to log in. Please go to the login page.");
+            router.refresh();
+        } else {
+            // This is an edge case. The user was created in Auth but their Firestore doc failed.
+            // For a production app, you might want to handle this more gracefully (e.g., by trying again or logging for manual intervention).
+            setError(serverResult.message);
         }
-      } else {
-        setError(result.message);
+
+      } catch (clientError: any) {
+        let message = "An error occurred during registration.";
+        if (clientError.code === 'auth/email-already-in-use') {
+            message = "An account with this email already exists.";
+        } else if (clientError.code === 'auth/weak-password') {
+            message = "The password is too weak.";
+        }
+        setError(message);
       }
     });
   };
@@ -57,7 +82,7 @@ export default function RegisterPage() {
           <CardTitle className="text-2xl font-headline tracking-widest text-accent">Create Account</CardTitle>
           <CardDescription>Register as a new agent to start your missions.</CardDescription>
         </CardHeader>
-        <form action={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

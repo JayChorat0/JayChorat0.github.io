@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/Logo';
-import { loginAction } from './actions';
 import { Loader2, KeyRound } from 'lucide-react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -21,31 +20,32 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleSubmit = (formData: FormData) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setError(null);
+    
+    const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    startTransition(async () => {
-      // First, check if user exists with the server action
-      const serverResult = await loginAction(formData);
+    if (!email || !password) {
+        setError("Email and password are required.");
+        return;
+    }
 
-      if (serverResult.success) {
-        // If user exists, try to sign in on the client
+    startTransition(async () => {
         try {
           await signInWithEmailAndPassword(auth, email, password);
           toast({ title: "Login Successful", description: "Redirecting to the game..." });
           router.push('/play');
+          router.refresh(); // Ensures layout re-renders with user state
         } catch (clientError: any) {
-          if(clientError.code === 'auth/wrong-password' || clientError.code === 'auth/invalid-credential') {
-             setError('Incorrect password. Please try again.');
-          } else {
-             setError('An error occurred during login.');
-          }
+           let message = 'An error occurred during login.';
+           if (clientError.code === 'auth/user-not-found' || clientError.code === 'auth/wrong-password' || clientError.code === 'auth/invalid-credential') {
+             message = 'Invalid email or password. Please try again.';
+           }
+           setError(message);
         }
-      } else {
-        setError(serverResult.message);
-      }
     });
   };
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
           <CardTitle className="text-2xl font-headline tracking-widest text-accent">Agent Login</CardTitle>
           <CardDescription>Enter the network to begin your mission.</CardDescription>
         </CardHeader>
-        <form action={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
