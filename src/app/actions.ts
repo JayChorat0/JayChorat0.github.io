@@ -1,10 +1,21 @@
 
 "use server";
 
-import { auth, db } from "@/lib/firebase-admin";
 import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
 import { requestPuzzleHint } from "@/ai/flows/generate-hint";
 import { revalidatePath } from "next/cache";
+
+// It is safe to import the admin SDK here. It will only be initialized and used in server-side actions.
+import * as admin from 'firebase-admin';
+
+// Initialize the app if it's not already initialized.
+if (!admin.apps.length) {
+    // In a deployed environment, the SDK automatically discovers credentials.
+    // For local development, you might need to set GOOGLE_APPLICATION_CREDENTIALS.
+    admin.initializeApp();
+}
+const db = admin.firestore();
+
 
 /**
  * Sets the initial user data in Firestore after registration.
