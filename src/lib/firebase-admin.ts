@@ -7,9 +7,11 @@ import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 let firebaseApp: App;
 
 if (!getApps().length) {
-  firebaseApp = initializeApp({
-    credential: admin.credential.applicationDefault(),
-  });
+  // By not passing any configuration, the SDK will try to initialize
+  // using environment variables or other auto-discovery mechanisms.
+  // This is often sufficient in many hosting environments and avoids
+  // credential errors in local development.
+  firebaseApp = initializeApp();
 } else {
   firebaseApp = getApps()[0];
 }
