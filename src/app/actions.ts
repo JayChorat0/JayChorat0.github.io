@@ -4,9 +4,7 @@
 import { requestPuzzleHint } from "@/ai/flows/generate-hint";
 import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
 import { auth as adminAuth, db } from "@/lib/firebase-admin"; // We need admin for server-side actions
-import { auth as clientAuth } from "@/lib/firebase"; // Client auth for user actions
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { revalidatePath } from "next/cache";
 
 async function setInitialUserData(userId: string, email: string) {
@@ -31,10 +29,15 @@ export async function registerAction(data: FormData): Promise<{ success: boolean
     try {
         const userCredential = await adminAuth.createUser({ email, password });
         await setInitialUserData(userCredential.uid, email);
+        // This won't sign the user in on the client, but it prepares their account.
+        // The client will need to sign in separately after registration.
         revalidatePath("/", "layout");
-        return { success: true, message: 'Registration successful!' };
+        return { success: true, message: 'Registration successful! Please log in.' };
 
     } catch (error: any) {
+        if (error.code === 'auth/email-already-exists') {
+            return { success: false, message: 'An account with this email already exists.' };
+        }
         return { success: false, message: error.message || 'An unknown error occurred.' };
     }
 }
@@ -49,17 +52,16 @@ export async function loginAction(data: FormData): Promise<{ success: boolean; m
     }
 
     try {
-        // We can't truly "log in" on the server with client SDK. 
-        // We just verify user exists. Client will handle actual login state.
-        const user = await adminAuth.getUserByEmail(email);
-        // In a real app we would verify password, but admin SDK doesn't do that.
-        // The client-side sign-in will handle the password check.
+        // The admin SDK cannot verify passwords. The client-side sign-in will handle the password check.
+        // We just verify the user exists to provide a better UX.
+        await adminAuth.getUserByEmail(email);
         revalidatePath("/", "layout");
         return { success: true, message: `Welcome back!` };
     } catch (error: any) {
         if (error.code === 'auth/user-not-found') {
             return { success: false, message: 'No user found with this email.' };
         }
+        // Don't leak specific error info
         return { success: false, message: 'Invalid credentials or server error.' };
     }
 };

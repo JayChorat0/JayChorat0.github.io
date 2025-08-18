@@ -11,18 +11,35 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/Logo';
 import { registerAction } from '../actions';
 import { Loader2, UserPlus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 export default function RegisterPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleSubmit = (formData: FormData) => {
     setError(null);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
     startTransition(async () => {
       const result = await registerAction(formData);
       if (result.success) {
-        router.push('/play');
+        toast({
+          title: "Registration Successful",
+          description: "Logging you in...",
+        });
+        // After successful registration, log the user in automatically
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            router.push('/play');
+        } catch (e) {
+            setError("Created account, but failed to log in. Please go to the login page.");
+        }
       } else {
         setError(result.message);
       }

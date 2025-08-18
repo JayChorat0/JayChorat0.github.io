@@ -11,20 +11,40 @@ import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/Logo';
 import { loginAction } from './actions';
 import { Loader2, KeyRound } from 'lucide-react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleSubmit = (formData: FormData) => {
     setError(null);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
     startTransition(async () => {
-      const result = await loginAction(formData);
-      if (result.success) {
-        router.push('/play');
+      // First, check if user exists with the server action
+      const serverResult = await loginAction(formData);
+
+      if (serverResult.success) {
+        // If user exists, try to sign in on the client
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          toast({ title: "Login Successful", description: "Redirecting to the game..." });
+          router.push('/play');
+        } catch (clientError: any) {
+          if(clientError.code === 'auth/wrong-password' || clientError.code === 'auth/invalid-credential') {
+             setError('Incorrect password. Please try again.');
+          } else {
+             setError('An error occurred during login.');
+          }
+        }
       } else {
-        setError(result.message);
+        setError(serverResult.message);
       }
     });
   };
