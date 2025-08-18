@@ -4,8 +4,9 @@
 import React, { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/lib/firebase";
-import { getGameState, updateGameState } from "@/app/actions";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
 
 import { GameLayout } from "@/components/game/GameLayout";
 import { CaseDisplay } from "@/components/game/CaseDisplay";
@@ -40,21 +41,29 @@ export default function CyberSleuthPage() {
   useEffect(() => {
     if (user) {
       const loadGameState = async () => {
-        const state = await getGameState(user.uid);
-        if (state) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+           const data = userDoc.data();
            setGameState({
-              currentCaseIndex: state.currentCaseIndex || 0,
-              currentPuzzleIndex: state.currentPuzzleIndex || 0,
-              score: state.score || 0,
-              solvedPuzzles: state.solvedPuzzles || [],
+              currentCaseIndex: data.currentCaseIndex || 0,
+              currentPuzzleIndex: data.currentPuzzleIndex || 0,
+              score: data.score || 0,
+              solvedPuzzles: data.solvedPuzzles || [],
           });
         } else {
-            // This case might happen for a new user if their doc wasn't created yet
-            // by the registerAction. We can set a default.
-            const initialState = { currentCaseIndex: 0, currentPuzzleIndex: 0, score: 0, solvedPuzzles: []};
+            // This can happen if the doc creation failed during registration.
+            // Let's create it here if it doesn't exist.
+            const initialState = { 
+                email: user.email,
+                score: 0,
+                solvedPuzzles: [],
+                currentCaseIndex: 0,
+                currentPuzzleIndex: 0,
+            };
+            await setDoc(userDocRef, initialState);
             setGameState(initialState);
-            // It's possible the doc doesn't exist yet, we could try to create it here too
-            // but for now we rely on the registration flow.
         }
       };
       loadGameState();
@@ -64,7 +73,8 @@ export default function CyberSleuthPage() {
   const updateServerGameState = async (newState: GameState) => {
       if (!user) return;
       startTransition(async () => {
-        await updateGameState(user.uid, newState);
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, newState, { merge: true });
       });
   }
 

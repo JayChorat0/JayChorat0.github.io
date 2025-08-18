@@ -9,11 +9,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/Logo';
-import { createInitialUserData } from '../actions';
 import { Loader2, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -43,21 +44,22 @@ export default function RegisterPage() {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // After successful client-side registration, call the server action to create the user document in Firestore.
-        const serverResult = await createInitialUserData(user.uid, email);
+        // Create the user document in Firestore
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, {
+            email: email,
+            score: 0,
+            solvedPuzzles: [],
+            currentCaseIndex: 0,
+            currentPuzzleIndex: 0,
+        });
 
-        if (serverResult.success) {
-            toast({
-              title: "Registration Successful",
-              description: "Redirecting to the game...",
-            });
-            router.push('/play');
-            router.refresh();
-        } else {
-            // This is an edge case. The user was created in Auth but their Firestore doc failed.
-            // For a production app, you might want to handle this more gracefully (e.g., by trying again or logging for manual intervention).
-            setError(serverResult.message);
-        }
+        toast({
+          title: "Registration Successful",
+          description: "Redirecting to the game...",
+        });
+        router.push('/play');
+        router.refresh();
 
       } catch (clientError: any) {
         let message = clientError.message || "An error occurred during registration.";
