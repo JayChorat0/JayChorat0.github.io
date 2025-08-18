@@ -3,7 +3,7 @@
 
 import { requestPuzzleHint } from "@/ai/flows/generate-hint";
 import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
-import { auth, db } from "@/lib/firebase-admin"; // We need admin for server-side actions
+import { auth, db } from "@/lib/firebase-admin";
 import { revalidatePath } from "next/cache";
 
 async function setInitialUserData(userId: string, email: string) {
@@ -49,8 +49,6 @@ export async function loginAction(data: FormData): Promise<{ success: boolean; m
     }
 
     try {
-        // The admin SDK can't verify passwords, but we can check if the user exists.
-        // The actual sign-in with password happens on the client.
         await auth.getUserByEmail(email);
         revalidatePath("/", "layout");
         return { success: true, message: `Welcome back!` };
@@ -59,7 +57,6 @@ export async function loginAction(data: FormData): Promise<{ success: boolean; m
             return { success: false, message: 'No user found with this email.' };
         }
         console.error("Login Action Error:", error);
-        // Don't leak specific error info on login
         return { success: false, message: 'Invalid credentials or server error.' };
     }
 };
@@ -81,16 +78,25 @@ export async function getHintAction(input: RequestPuzzleHintInput): Promise<{ hi
 }
 
 export async function getGameState(userId: string) {
-    const userDocRef = db.collection("users").doc(userId);
-    const userDoc = await userDocRef.get();
-    if (userDoc.exists) {
-        return userDoc.data();
+    try {
+        const userDocRef = db.collection("users").doc(userId);
+        const userDoc = await userDocRef.get();
+        if (userDoc.exists) {
+            return userDoc.data();
+        }
+        return null;
+    } catch (error) {
+        console.error("Error getting game state:", error);
+        return null;
     }
-    return null;
 }
 
 export async function updateGameState(userId: string, newState: any) {
-    const userDocRef = db.collection("users").doc(userId);
-    await userDocRef.set(newState, { merge: true });
-    revalidatePath("/play");
+    try {
+        const userDocRef = db.collection("users").doc(userId);
+        await userDocRef.set(newState, { merge: true });
+        revalidatePath("/play");
+    } catch (error) {
+        console.error("Error updating game state:", error);
+    }
 }
