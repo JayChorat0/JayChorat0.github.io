@@ -91,6 +91,11 @@ export default function CyberSleuthPage() {
   const currentCase: Case = cases[gameState.currentCaseIndex];
   const currentPuzzle: Puzzle = currentCase.puzzles[gameState.currentPuzzleIndex];
   const isPuzzleSolved = gameState.solvedPuzzles.includes(currentPuzzle.id);
+  
+  const isLastPuzzleOfCase = gameState.currentPuzzleIndex === currentCase.puzzles.length - 1;
+  const isLastCase = gameState.currentCaseIndex === cases.length - 1;
+
+  const isGameFinished = isLastPuzzleOfCase && isLastCase && isPuzzleSolved;
 
   const handleNext = () => {
     setFeedback(null);
@@ -98,15 +103,15 @@ export default function CyberSleuthPage() {
     
     let newGameState: Partial<GameState>;
 
-    if (gameState.currentPuzzleIndex < currentCase.puzzles.length - 1) {
+    if (!isLastPuzzleOfCase) {
         // More puzzles in the current case, go to the next puzzle.
         newGameState = { currentPuzzleIndex: gameState.currentPuzzleIndex + 1 };
-    } else if (gameState.currentCaseIndex < cases.length - 1) {
+    } else if (!isLastCase) {
        // Last puzzle of a case, go to the next case.
        newGameState = { currentCaseIndex: gameState.currentCaseIndex + 1, currentPuzzleIndex: 0 };
     } else {
-      // Last puzzle of the last case, loop back to the beginning.
-      newGameState = { currentCaseIndex: 0, currentPuzzleIndex: 0 };
+      // Game is finished, do nothing.
+      return;
     }
     
     updateServerGameState(newGameState);
@@ -136,7 +141,6 @@ export default function CyberSleuthPage() {
     }
   };
 
-  const isGameFinished = false; // The game never truly finishes now.
 
   return (
     <GameLayout
@@ -176,7 +180,7 @@ export default function CyberSleuthPage() {
             {isPuzzleSolved && !isGameFinished && (
                  <Button onClick={handleNext} variant="outline" className="ml-auto" disabled={isPending}>
                      {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {gameState.currentPuzzleIndex < currentCase.puzzles.length - 1 ? 'Next Puzzle' : 'Next Case'}
+                    {isLastPuzzleOfCase ? 'Next Case' : 'Next Puzzle'}
                     <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             )}
