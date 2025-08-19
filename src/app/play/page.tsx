@@ -99,13 +99,14 @@ export default function CyberSleuthPage() {
     let newGameState: Partial<GameState>;
 
     if (gameState.currentPuzzleIndex < currentCase.puzzles.length - 1) {
+        // More puzzles in the current case, go to the next puzzle.
         newGameState = { currentPuzzleIndex: gameState.currentPuzzleIndex + 1 };
     } else if (gameState.currentCaseIndex < cases.length - 1) {
+       // Last puzzle of a case, go to the next case.
        newGameState = { currentCaseIndex: gameState.currentCaseIndex + 1, currentPuzzleIndex: 0 };
     } else {
-      // Game finished
-      setFeedback({ type: 'correct', message: "Congratulations! You've solved all cases!" });
-      return; // Don't update state further
+      // Last puzzle of the last case, loop back to the beginning.
+      newGameState = { currentCaseIndex: 0, currentPuzzleIndex: 0 };
     }
     
     updateServerGameState(newGameState);
@@ -135,7 +136,7 @@ export default function CyberSleuthPage() {
     }
   };
 
-  const isGameFinished = gameState.currentCaseIndex >= cases.length -1 && gameState.currentPuzzleIndex >= cases[cases.length-1].puzzles.length -1 && isPuzzleSolved;
+  const isGameFinished = false; // The game never truly finishes now.
 
   return (
     <GameLayout
