@@ -168,5 +168,89 @@ export const cases: Case[] = [
         aiPuzzleDescription: "The user is presented with a list of key fragments that are out of order. They need to reassemble them into a single string based on the part numbers provided."
       }
     ]
+  },
+  {
+    id: "case-05",
+    title: "Case 05: The Social Engineering Ploy",
+    description: "An attacker is using social engineering to gain access. We need to uncover their plot.",
+    puzzles: [
+      {
+        id: "c05p01",
+        type: "website",
+        title: "Investigate Fake Profile",
+        description: "The attacker is using a fake social media profile to appear legitimate. Find the hidden message.",
+        content: `
+          <div class="p-4 border rounded-lg">
+            <h2 class="text-xl font-bold">Jane Doe</h2>
+            <p class="text-sm text-gray-400">Project Manager at Innovate Inc.</p>
+            <p class="mt-2">Connecting with industry leaders and sharing insights!</p>
+            <!-- The next target is the CFO, the code word is 'ProjectEagle' -->
+          </div>
+        `,
+        prompt: "The attacker hid a code word in the HTML of the profile page. What is it?",
+        solution: "ProjectEagle",
+        points: 100,
+        aiPuzzleDescription: "The user is analyzing a fake social media profile page. They need to inspect the HTML source to find a hidden comment containing a code word."
+      },
+      {
+        id: "c05p02",
+        type: "email",
+        title: "Analyze Spear Phishing Email",
+        description: "The attacker sent a spear phishing email to the CFO. Identify the malicious payload.",
+        content: `
+          <p>Hi John,</p>
+          <p>Following up on our discussion, here is the document for 'ProjectEagle'.</p>
+          <p>Please review: <a href="http://evil-corp.net/docs/ProjectEagle.exe" target="_blank" class="text-blue-400 hover:underline">Download Secure Document</a></p>
+          <p>Thanks,<br/>Jane Doe</p>
+        `,
+        prompt: "The link in the email downloads a file. What is the full filename of the download?",
+        solution: "ProjectEagle.exe",
+        points: 125,
+        aiPuzzleDescription: "The user is analyzing a phishing email. They need to identify the full filename, including the extension, of the file that would be downloaded from the hyperlink."
+      }
+    ]
+  },
+  {
+    id: "case-06",
+    title: "Case 06: The Data Exfiltration",
+    description: "Sensitive data is being slowly leaked from our network. Find the source and the leaked data.",
+    puzzles: [
+      {
+        id: "c06p01",
+        type: "terminal",
+        title: "Analyze DNS Logs",
+        description: "The attacker is using DNS tunneling to exfiltrate data. Find the suspicious domain in the logs.",
+        content: `
+          $ tail -f dns_queries.log
+          [INFO] query for www.google.com
+          [INFO] query for cdn.corp.com
+          [INFO] query for a7b3c1d9.secret-data.net
+          [INFO] query for auth.corp.com
+        `,
+        prompt: "A domain in the logs looks suspicious and is likely used for data exfiltration. What is the suspicious domain?",
+        solution: "a7b3c1d9.secret-data.net",
+        points: 150,
+        aiPuzzleDescription: "The user is viewing DNS query logs. They need to identify a strange-looking domain that doesn't fit the pattern of legitimate corporate domains, suggesting it's used for data exfiltration."
+      },
+      {
+        id: "c06p02",
+        type: "website",
+        title: "Find Leaked Data",
+        description: "The suspicious domain leads to a public paste site where a fragment of the leaked data was posted.",
+        content: `
+          <div class="font-mono text-sm whitespace-pre-wrap bg-gray-800 p-4 rounded">
+            <div>...BEGIN LEAKED DATA...</div>
+            <div>User: jsmith</div>
+            <div>Pass: S3cureP@ssw0rd!</div>
+            <div>FLAG: {CYBER_HUNTER_MASTER}</div>
+            <div>...END LEAKED DATA...</div>
+          </div>
+        `,
+        prompt: "The leaked data contains a 'flag'. What is the value of the flag?",
+        solution: "{CYBER_HUNTER_MASTER}",
+        points: 100,
+        aiPuzzleDescription: "The user is viewing a text snippet on a webpage that represents leaked data. They need to find and copy the value of the 'FLAG' contained within the text."
+      }
+    ]
   }
 ];
