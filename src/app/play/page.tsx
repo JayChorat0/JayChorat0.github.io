@@ -122,19 +122,7 @@ export default function CyberSleuthPage() {
         score: gameState.score + currentPuzzle.points,
         solvedPuzzles: [...gameState.solvedPuzzles, currentPuzzle.id],
       };
-
-      // Advance to the next puzzle/case immediately upon solving
-      if (gameState.currentPuzzleIndex < currentCase.puzzles.length - 1) {
-          newGameState.currentPuzzleIndex = gameState.currentPuzzleIndex + 1;
-      } else if (gameState.currentCaseIndex < cases.length - 1) {
-          newGameState.currentCaseIndex = gameState.currentCaseIndex + 1;
-          newGameState.currentPuzzleIndex = 0;
-      } else {
-          // Last puzzle of last case solved
-          console.log("Game finished!");
-      }
-
-      setUserInput(""); // Clear input for next puzzle
+      
       updateServerGameState(newGameState);
 
     } else {
