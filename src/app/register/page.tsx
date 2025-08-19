@@ -50,6 +50,7 @@ export default function RegisterPage() {
             email: email,
             score: 0,
             solvedPuzzles: [],
+            endlessPuzzles: [],
             currentCaseIndex: 0,
             currentPuzzleIndex: 0,
         });

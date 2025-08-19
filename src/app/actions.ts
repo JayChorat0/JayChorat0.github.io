@@ -3,9 +3,9 @@
 
 import type { RequestPuzzleHintInput } from "@/ai/flows/generate-hint";
 import { requestPuzzleHint } from "@/ai/flows/generate-hint";
-import { revalidatePath } from "next/cache";
+import { generateNewPuzzle, GenerateNewPuzzleInput } from "@/ai/flows/generate-puzzle";
+import { Puzzle } from "@/lib/cases";
 
-// This function is no longer needed as the client will create the user document.
 
 export async function getHintAction(input: RequestPuzzleHintInput): Promise<{ hint: string } | { error: string }> {
   try {
@@ -23,6 +23,15 @@ export async function getHintAction(input: RequestPuzzleHintInput): Promise<{ hi
   }
 }
 
-// We will fetch game state from the client side now.
-// The updateGameState will also move to the client side.
-
+export async function generateNewPuzzleAction(input: GenerateNewPuzzleInput): Promise<{ puzzle: Puzzle } | { error: string }> {
+  try {
+    const puzzle = await generateNewPuzzle(input);
+    if (!puzzle) {
+        return { error: 'Could not generate a new puzzle at this time.'}
+    }
+    return { puzzle };
+  } catch (e) {
+    console.error(e);
+    return { error: "Failed to generate a new puzzle. The AI model might be unavailable." };
+  }
+}
