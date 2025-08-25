@@ -1,14 +1,15 @@
 
 import type {NextConfig} from 'next';
 
-const repoName = 'cyber-sleuth'; // IMPORTANT: Change this to your repository name
+const repoName = 'jay-0k.github.io'; // IMPORTANT: This is your repository name.
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = {
   /* config options here */
   output: 'export',
-  basePath: isProd ? `/${repoName}` : '',
-  assetPrefix: isProd ? `/${repoName}/` : '',
+  // For a repository named <user>.github.io, basePath and assetPrefix should be empty.
+  basePath: isProd ? '' : '',
+  assetPrefix: isProd ? '' : '',
   typescript: {
     ignoreBuildErrors: true,
   },
