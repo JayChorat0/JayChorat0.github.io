@@ -1,6 +1,6 @@
 import type {NextConfig} from 'next';
 
-const repoName = ''; // IMPORTANT: Change this to your repository name
+const repoName = 'cybersleuth'; // IMPORTANT: Change this to your repository name
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = {
