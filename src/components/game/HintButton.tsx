@@ -4,15 +4,18 @@ import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { getHintAction } from '@/app/actions';
 import { Puzzle } from '@/lib/cases';
 import { Lightbulb, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { RequestPuzzleHintInput } from '@/ai/flows/generate-hint';
 
 interface HintButtonProps {
     puzzle: Puzzle;
     userProgress: string;
 }
+
+const getHintFunction = httpsCallable<RequestPuzzleHintInput, { hint: string } | { error: string }>(getFunctions(), 'getHint');
 
 export function HintButton({ puzzle, userProgress }: HintButtonProps) {
     const [isPending, startTransition] = useTransition();
@@ -26,24 +29,37 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
     
         setError(null);
         setHint(null);
+        setIsOpen(true);
         startTransition(async () => {
-            const result = await getHintAction({
-                puzzleDescription: puzzle.aiPuzzleDescription,
-                userProgress: userProgress,
-            });
+            try {
+                const result = await getHintFunction({
+                    puzzleDescription: puzzle.aiPuzzleDescription,
+                    userProgress: userProgress || "The user has not tried anything yet.",
+                });
 
-            if (result.error) {
-                setError(result.error);
-                toast({
+                const data = result.data as any;
+
+                if (data.error) {
+                    setError(data.error);
+                    toast({
+                        variant: 'destructive',
+                        title: 'Hint Error',
+                        description: data.error,
+                    });
+                } else if (data.hint) {
+                    setHint(data.hint);
+                }
+            } catch(e) {
+                console.error(e);
+                const errorMessage = "Failed to generate hint. Please try again later.";
+                setError(errorMessage);
+                 toast({
                     variant: 'destructive',
                     title: 'Hint Error',
-                    description: result.error,
+                    description: errorMessage,
                 });
-            } else if (result.hint) {
-                setHint(result.hint);
             }
         });
-        setIsOpen(true);
     };
     
     return (
@@ -76,7 +92,7 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                         <p className="text-lg text-center font-medium">{hint}</p>
                     ) : (
                         // This case should ideally not be reached if the dialog is only opened after a hint is fetched
-                        <p className="text-muted-foreground">No hint available yet.</p>
+                        <p className="text-muted-foreground">Requesting hint...</p>
                     )}
                 </div>
                  <DialogFooter>
