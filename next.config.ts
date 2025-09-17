@@ -1,7 +1,7 @@
 
 import type {NextConfig} from 'next';
 
-const repoName = 'Bug-hunters'; // IMPORTANT: This is your repository name.
+const repoName = 'BugHunter'; // IMPORTANT: This is your repository name.
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = {
