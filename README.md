@@ -1,6 +1,3 @@
-git push origin main# Firebase Studio
+# BugHunter
 
-This is a NextJS starter in Firebase Studio.
-
-To get started, take a look at src/app/page.tsx.
-# Bug-hunter
+This is a NextJS project created in Firebase Studio. It's an online detective cyber mystery investigation game.
