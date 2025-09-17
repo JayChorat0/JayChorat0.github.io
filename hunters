@@ -82,7 +82,7 @@ runConfig:
   "iconLibrary": "lucide"
 }
 
---- FILE: firebase.json ---
+//--- FILE: firebase.json ---//
 
 {
   "firestore": {
