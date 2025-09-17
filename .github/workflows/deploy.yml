@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # This is the line that fixes the permission issue
     steps:
       - name: Checkout
         uses: actions/checkout@v4
