@@ -2,12 +2,27 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
+import { VT323, Source_Code_Pro } from 'next/font/google';
 
 export const metadata: Metadata = {
   title: "Bug Hunters",
   description: "An online detective cyber mystery investigation game.",
   manifest: "/manifest.json",
 };
+
+const vt323 = VT323({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-vt323',
+  weight: '400'
+});
+
+const sourceCodePro = Source_Code_Pro({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-source-code-pro',
+});
+
 
 export default function RootLayout({
   children,
@@ -17,17 +32,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Source_Code_Pro:wght@400;700&family=VT323&display=swap"
-          rel="stylesheet"
-        />
         <meta name="theme-color" content="#0D110D" />
       </head>
       <body
         className={cn(
-          "min-h-screen bg-background font-body antialiased"
+          "min-h-screen bg-background font-body antialiased",
+          vt323.variable,
+          sourceCodePro.variable
         )}
       >
         {children}
