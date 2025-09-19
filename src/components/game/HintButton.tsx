@@ -8,12 +8,18 @@ import { useToast } from '@/hooks/use-toast';
 import { Puzzle } from '@/lib/cases';
 import { Lightbulb, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { requestPuzzleHint } from '@/ai/flows/generate-hint';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { RequestPuzzleHintInput, RequestPuzzleHintOutput } from '@/ai/flows/generate-hint';
+
 
 interface HintButtonProps {
     puzzle: Puzzle;
     userProgress: string;
 }
+
+const functions = getFunctions();
+const requestPuzzleHintFunction = httpsCallable<RequestPuzzleHintInput, RequestPuzzleHintOutput>(functions, 'requestPuzzleHint');
+
 
 export function HintButton({ puzzle, userProgress }: HintButtonProps) {
     const [isPending, startTransition] = useTransition();
@@ -30,12 +36,14 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
         setIsOpen(true);
         startTransition(async () => {
             try {
-                const result = await requestPuzzleHint({
+                const result = await requestPuzzleHintFunction({
                     puzzleDescription: puzzle.aiPuzzleDescription,
                     userProgress: userProgress || "The user has not tried anything yet.",
                 });
 
-                if (!result.hint) {
+                const data = result.data as any;
+
+                if (!data.hint) {
                     const errorMessage = "Could not generate a hint at this time.";
                     setError(errorMessage);
                     toast({
@@ -44,7 +52,7 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                         description: errorMessage,
                     });
                 } else {
-                    setHint(result.hint);
+                    setHint(data.hint);
                 }
             } catch(e: any) {
                 console.error(e);

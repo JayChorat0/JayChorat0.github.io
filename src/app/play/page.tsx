@@ -16,7 +16,8 @@ import { Input } from "@/components/ui/input";
 import { cases, type Case, type Puzzle } from "@/lib/cases";
 import { cn } from "@/lib/utils";
 import { ArrowRight, Loader2, Wand2 } from "lucide-react";
-import { GenerateNewPuzzleInput } from "@/ai/flows/generate-puzzle";
+import { GenerateNewPuzzleInput, GenerateNewPuzzleOutput } from "@/ai/flows/generate-puzzle";
+
 
 type GameState = {
   currentCaseIndex: number;
@@ -35,7 +36,8 @@ const endlessCase: Case = {
     puzzles: [],
 };
 
-const generateNewPuzzleFunction = httpsCallable<GenerateNewPuzzleInput, { puzzle: Puzzle } | { error: string }>(getFunctions(), 'generateNewPuzzle');
+const functions = getFunctions();
+const generateNewPuzzleFunction = httpsCallable<GenerateNewPuzzleInput, GenerateNewPuzzleOutput>(functions, 'generateNewPuzzle');
 
 
 export default function CyberSleuthPage() {
@@ -130,17 +132,17 @@ export default function CyberSleuthPage() {
                 existingSolutions: [...allSolutions, ...(gameState.endlessPuzzles?.map(p => p.solution) || [])]
             });
             
-            const data = result.data as any;
+            const newPuzzle = result.data as any;
 
-            if (data.puzzle) {
-                const newPuzzles = [...(gameState.endlessPuzzles || []), data.puzzle];
+            if (newPuzzle) {
+                const newPuzzles = [...(gameState.endlessPuzzles || []), newPuzzle];
                 updateServerGameState({
                     currentCaseIndex: cases.length, // Set to endless mode index
                     currentPuzzleIndex: newPuzzles.length -1, // Go to the new puzzle
                     endlessPuzzles: newPuzzles,
                 });
             } else {
-                 setFeedback({ type: "incorrect", message: data.error || "Failed to generate a new mission." });
+                 setFeedback({ type: "incorrect", message: "Failed to generate a new mission." });
             }
         } catch (e) {
             console.error(e);

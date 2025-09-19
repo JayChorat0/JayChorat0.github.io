@@ -22,15 +22,14 @@ const nextConfig: NextConfig = {
     remotePatterns: [],
   },
   webpack: (config, { isServer }) => {
-    // This is to fix the error: Module not found: Can't resolve '@opentelemetry/exporter-jaeger'
-    config.externals.push('@opentelemetry/exporter-jaeger');
-    config.externals.push('@opentelemetry/resources');
-    
-    // This is to fix the error: Module not found: Can't resolve '@genkit-ai/firebase'
+    // These modules are server-side only and should not be included in the client-side bundle.
     if (!isServer) {
         config.resolve.fallback = {
             ...config.resolve.fallback,
             '@genkit-ai/firebase': false,
+            '@opentelemetry/exporter-jaeger': false,
+            '@opentelemetry/resources': false,
+            'firebase-admin': false,
         };
     }
 
