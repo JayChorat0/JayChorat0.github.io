@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useTransition } from 'react';
@@ -7,15 +8,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Puzzle } from '@/lib/cases';
 import { Lightbulb, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { RequestPuzzleHintInput } from '@/ai/flows/generate-hint';
+import { requestPuzzleHint } from '@/ai/flows/generate-hint';
+
 
 interface HintButtonProps {
     puzzle: Puzzle;
     userProgress: string;
 }
-
-const getHintFunction = httpsCallable<RequestPuzzleHintInput, { hint: string } | { error: string }>(getFunctions(), 'getHint');
 
 export function HintButton({ puzzle, userProgress }: HintButtonProps) {
     const [isPending, startTransition] = useTransition();
@@ -32,26 +31,25 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
         setIsOpen(true);
         startTransition(async () => {
             try {
-                const result = await getHintFunction({
+                const result = await requestPuzzleHint({
                     puzzleDescription: puzzle.aiPuzzleDescription,
                     userProgress: userProgress || "The user has not tried anything yet.",
                 });
 
-                const data = result.data as any;
-
-                if (data.error) {
-                    setError(data.error);
+                if (!result.hint) {
+                    const errorMessage = "Could not generate a hint at this time.";
+                    setError(errorMessage);
                     toast({
                         variant: 'destructive',
                         title: 'Hint Error',
-                        description: data.error,
+                        description: errorMessage,
                     });
-                } else if (data.hint) {
-                    setHint(data.hint);
+                } else {
+                    setHint(result.hint);
                 }
-            } catch(e) {
+            } catch(e: any) {
                 console.error(e);
-                const errorMessage = "Failed to generate hint. Please try again later.";
+                const errorMessage = e.message || "Failed to generate hint. Please try again later.";
                 setError(errorMessage);
                  toast({
                     variant: 'destructive',
