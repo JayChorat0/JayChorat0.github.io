@@ -3,8 +3,6 @@
 // RequestPuzzleHintInput - The input type for the requestPuzzleHint function.
 // RequestPuzzleHintOutput - The return type for the requestPuzzleHint function.
 
-'use server';
-
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 

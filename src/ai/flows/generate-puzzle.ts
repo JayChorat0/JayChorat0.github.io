@@ -3,8 +3,6 @@
 // GenerateNewPuzzleInput - The input type for the generateNewPuzzle function.
 // GenerateNewPuzzleOutput - The return type for the generateNewPuzzle function.
 
-'use server';
-
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { Puzzle } from '@/lib/cases';
