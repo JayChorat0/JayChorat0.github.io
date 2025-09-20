@@ -1,27 +1,46 @@
 
 const { onCall } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
-const { genkit, googleAI } = require("genkit/plugins");
-const {
-  generateNewPuzzle,
-} = require("../../src/ai/flows/generate-puzzle.ts");
-const {
-  requestPuzzleHint,
-} = require("../../src/ai/flows/generate-hint.ts");
+const { genkit } = require("genkit");
+const { googleAI } = require("@genkit-ai/googleai");
+const { firebase } = require("@genkit-ai/firebase");
+
+// Dynamically import ES module (ts-node)
+let generateNewPuzzle, requestPuzzleHint;
+
+const loadTsModules = async () => {
+  const tsNode = await import('ts-node');
+  // Configure ts-node to use CommonJS modules for this context
+  tsNode.register({
+    compilerOptions: {
+      module: 'commonjs'
+    }
+  });
+  const puzzleModule = require("../../src/ai/flows/generate-puzzle.ts");
+  const hintModule = require("../../src/ai/flows/generate-hint.ts");
+  generateNewPuzzle = puzzleModule.generateNewPuzzle;
+  requestPuzzleHint = hintModule.requestPuzzleHint;
+};
 
 initializeApp();
 
 genkit({
-  plugins: [googleAI()],
-  model: "googleai/gemini-1.5-flash-latest",
+  plugins: [
+    googleAI(),
+    firebase(),
+  ],
+  logLevel: 'debug',
+  enableTracingAndMetrics: true,
 });
 
 exports.generateNewPuzzle = onCall(async (request) => {
+  if (!generateNewPuzzle) await loadTsModules();
   const puzzle = await generateNewPuzzle(request.data);
   return puzzle;
 });
 
 exports.requestPuzzleHint = onCall(async (request) => {
+  if (!requestPuzzleHint) await loadTsModules();
   const hint = await requestPuzzleHint(request.data);
   return hint;
 });
