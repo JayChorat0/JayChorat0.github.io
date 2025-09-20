@@ -42,6 +42,7 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
 
         startTransition(async () => {
             try {
+                console.log("Requesting hint for puzzle:", puzzle.aiPuzzleDescription);
                 const result = await requestPuzzleHintFunction({
                     puzzleDescription: puzzle.aiPuzzleDescription,
                     userProgress: userProgress || "The user has not tried anything yet.",
@@ -50,7 +51,7 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                 const data = result.data as any;
 
                 if (!data.hint) {
-                    const errorMessage = "Could not generate a hint at this time.";
+                    const errorMessage = "Could not generate a hint at this time. The AI may be offline.";
                     setError(errorMessage);
                     toast({
                         variant: 'destructive',
@@ -61,7 +62,7 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                     setHint(data.hint);
                 }
             } catch(e: any) {
-                console.error(e);
+                console.error("Firebase Functions call failed:", e);
                 const errorMessage = e.message || "Failed to generate hint. Please try again later.";
                 setError(errorMessage);
                  toast({

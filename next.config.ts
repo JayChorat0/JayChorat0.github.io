@@ -26,8 +26,8 @@ const nextConfig: NextConfig = {
     if (!isServer) {
         config.resolve.fallback = {
             ...config.resolve.fallback,
-            '@genkit-ai/firebase': false,
             'firebase-admin': false,
+            'ts-node': false,
             // Add other server-only packages here
         };
     }
