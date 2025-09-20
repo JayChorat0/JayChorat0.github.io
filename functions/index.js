@@ -1,5 +1,5 @@
 
-const { onCall } = require("firebase-functions/v2/https");
+const { onCall } = require("firebase-functions/v2/on_call");
 const { initializeApp } = require("firebase-admin/app");
 const { genkit } = require("genkit");
 const { googleAI } = require("@genkit-ai/googleai");
