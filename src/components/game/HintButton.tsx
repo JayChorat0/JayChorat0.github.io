@@ -29,11 +29,17 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
     const { toast } = useToast();
 
     const handleGetHint = () => {
-        if (isOpen) return;
-    
+        // This function now only sets the dialog to open.
+        // The hint fetching is triggered by a useEffect inside the DialogContent
+        // to ensure it only runs when the dialog is actually visible.
         setError(null);
         setHint(null);
         setIsOpen(true);
+    };
+
+    const fetchHint = () => {
+        if (hint || error || isPending) return; // Don't fetch if we already have a hint, an error, or are pending
+
         startTransition(async () => {
             try {
                 const result = await requestPuzzleHintFunction({
@@ -75,35 +81,37 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                     Need a Hint?
                 </Button>
             </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>AI-Generated Hint</DialogTitle>
-                    <DialogDescription>
-                        Here's a hint to help you solve the puzzle.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="min-h-[100px] flex items-center justify-center">
-                    {isPending ? (
-                        <div className="flex flex-col items-center gap-2">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                            <p className="text-muted-foreground">Generating hint...</p>
-                        </div>
-                    ) : error ? (
-                         <Alert variant="destructive">
-                            <AlertTitle>Error</AlertTitle>
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    ) : hint ? (
-                        <p className="text-lg text-center font-medium">{hint}</p>
-                    ) : (
-                        // This case should ideally not be reached if the dialog is only opened after a hint is fetched
-                        <p className="text-muted-foreground">Requesting hint...</p>
-                    )}
-                </div>
-                 <DialogFooter>
-                    <Button onClick={() => setIsOpen(false)}>Close</Button>
-                </DialogFooter>
-            </DialogContent>
+            {isOpen && (
+                <DialogContent onOpenAutoFucus={(e) => {
+                    e.preventDefault();
+                    fetchHint();
+                }}>
+                    <DialogHeader>
+                        <DialogTitle>AI-Generated Hint</DialogTitle>
+                        <DialogDescription>
+                            Here's a hint to help you solve the puzzle.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="min-h-[100px] flex items-center justify-center">
+                        {isPending ? (
+                            <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                <p className="text-muted-foreground">Generating hint...</p>
+                            </div>
+                        ) : error ? (
+                             <Alert variant="destructive">
+                                <AlertTitle>Error</AlertTitle>
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        ) : hint ? (
+                            <p className="text-lg text-center font-medium">{hint}</p>
+                        ) : null}
+                    </div>
+                     <DialogFooter>
+                        <Button onClick={() => setIsOpen(false)}>Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            )}
         </Dialog>
     );
 }

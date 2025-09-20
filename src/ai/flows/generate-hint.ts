@@ -1,11 +1,12 @@
 
+'use server';
 // This file houses the requestPuzzleHint flow, input and output types.
 // requestPuzzleHint - A function that generates a hint for the current puzzle.
 // RequestPuzzleHintInput - The input type for the requestPuzzleHint function.
 // RequestPuzzleHintOutput - The return type for the requestPuzzleHint function.
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'genkit/zod';
 
 const RequestPuzzleHintInputSchema = z.object({
   puzzleDescription: z.string().describe('The description of the current puzzle.'),

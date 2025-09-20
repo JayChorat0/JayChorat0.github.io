@@ -9,11 +9,15 @@ const { firebase } = require("@genkit-ai/firebase");
 let generateNewPuzzle, requestPuzzleHint;
 
 const loadTsModules = async () => {
+  // Guard against repeated loads
+  if (generateNewPuzzle && requestPuzzleHint) return;
+
   const tsNode = await import('ts-node');
   // Configure ts-node to use CommonJS modules for this context
   tsNode.register({
     compilerOptions: {
-      module: 'commonjs'
+      module: 'commonjs',
+      target: 'es2017',
     }
   });
   const puzzleModule = require("../../src/ai/flows/generate-puzzle.ts");
@@ -34,13 +38,13 @@ genkit({
 });
 
 exports.generateNewPuzzle = onCall(async (request) => {
-  if (!generateNewPuzzle) await loadTsModules();
+  await loadTsModules();
   const puzzle = await generateNewPuzzle(request.data);
   return puzzle;
 });
 
 exports.requestPuzzleHint = onCall(async (request) => {
-  if (!requestPuzzleHint) await loadTsModules();
+  await loadTsModules();
   const hint = await requestPuzzleHint(request.data);
   return hint;
 });

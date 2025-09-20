@@ -1,11 +1,12 @@
 
+'use server';
 // This file houses the generateNewPuzzle flow, input and output types.
 // generateNewPuzzle - A function that generates a new, unique puzzle for the game.
 // GenerateNewPuzzleInput - The input type for the generateNewPuzzle function.
 // GenerateNewPuzzleOutput - The return type for the generateNewPuzzle function.
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'genkit/zod';
 import { Puzzle } from '@/lib/cases';
 
 const GenerateNewPuzzleInputSchema = z.object({
