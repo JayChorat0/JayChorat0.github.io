@@ -63,7 +63,7 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                 }
             } catch(e: any) {
                 console.error("Firebase Functions call failed:", e);
-                const errorMessage = e.message || "Failed to generate hint. Please try again later.";
+                const errorMessage = e.details?.message || e.message || "Failed to generate hint. Please try again later.";
                 setError(errorMessage);
                  toast({
                     variant: 'destructive',
