@@ -1,5 +1,5 @@
 
-'use server';
+
 // This file houses the generateNewPuzzle flow, input and output types.
 // generateNewPuzzle - A function that generates a new, unique puzzle for the game.
 // GenerateNewPuzzleInput - The input type for the generateNewPuzzle function.

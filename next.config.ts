@@ -27,9 +27,8 @@ const nextConfig: NextConfig = {
         config.resolve.fallback = {
             ...config.resolve.fallback,
             '@genkit-ai/firebase': false,
-            '@opentelemetry/exporter-jaeger': false,
-            '@opentelemetry/resources': false,
             'firebase-admin': false,
+            // Add other server-only packages here
         };
     }
 
