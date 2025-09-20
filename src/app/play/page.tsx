@@ -36,7 +36,7 @@ const endlessCase: Case = {
     puzzles: [],
 };
 
-const functions = getFunctions();
+const functions = getFunctions(undefined, 'us-central1');
 const generateNewPuzzleFunction = httpsCallable<GenerateNewPuzzleInput, GenerateNewPuzzleOutput>(functions, 'generateNewPuzzle');
 
 

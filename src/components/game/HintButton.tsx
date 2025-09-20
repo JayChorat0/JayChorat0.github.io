@@ -17,7 +17,7 @@ interface HintButtonProps {
     userProgress: string;
 }
 
-const functions = getFunctions();
+const functions = getFunctions(undefined, 'us-central1');
 const requestPuzzleHintFunction = httpsCallable<RequestPuzzleHintInput, RequestPuzzleHintOutput>(functions, 'requestPuzzleHint');
 
 
