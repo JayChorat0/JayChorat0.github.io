@@ -82,7 +82,7 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                 </Button>
             </DialogTrigger>
             {isOpen && (
-                <DialogContent onOpenAutoFucus={(e) => {
+                <DialogContent onOpenAutoFocus={(e) => {
                     e.preventDefault();
                     fetchHint();
                 }}>
