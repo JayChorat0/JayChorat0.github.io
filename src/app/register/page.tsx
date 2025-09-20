@@ -93,6 +93,7 @@ export default function RegisterPage() {
                 id="email"
                 name="email"
                 type="email"
+                autoComplete="email"
                 placeholder="agent@agency.com"
                 required
                 className="font-code"
@@ -105,6 +106,7 @@ export default function RegisterPage() {
                 id="password"
                 name="password"
                 type="password"
+                autoComplete="new-password"
                 placeholder="Choose a strong passkey..."
                 required
                 minLength={6}

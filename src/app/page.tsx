@@ -68,6 +68,7 @@ export default function LoginPage() {
                 id="email"
                 name="email"
                 type="email"
+                autoComplete="email"
                 placeholder="Your agent email..."
                 required
                 className="font-code"
@@ -80,6 +81,7 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 type="password"
+                autoComplete="current-password"
                 placeholder="Your secret passkey..."
                 required
                 className="font-code"

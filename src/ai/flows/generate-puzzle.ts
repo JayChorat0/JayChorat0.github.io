@@ -44,8 +44,9 @@ Here are the requirements for the puzzle you create:
 1.  **Originality**: The puzzle, especially the solution, must be unique. Avoid using any of the following existing solutions: {{{jsonStringify existingSolutions}}}
 2.  **Context**: The last case the user played was about: "{{lastCaseDescription}}". You can use this for inspiration, but it's not a strict requirement.
 3.  **Content is Key**: The answer must be findable within the 'content' field. For example, hide it in an HTML comment, a fake URL, a base64 encoded string, a log file, or a code snippet.
-4.  **Clarity**: The 'prompt' should clearly state what the user needs to find, without giving away the answer.
-5.  **Difficulty**: Assign points based on the perceived difficulty (50 for easy, 100 for medium, 150-200 for hard).
+4.  **No Trivial Solutions**: Do not create puzzles where the solution is a common word or easily guessable from the prompt (e.g., if the prompt asks for a 'keyword', don't make the solution 'keyword').
+5.  **Clarity**: The 'prompt' should clearly state what the user needs to find, without giving away the answer.
+6.  **Difficulty**: Assign points based on the perceived difficulty (50 for easy, 100 for medium, 150-200 for hard).
 
 Please generate a new puzzle now.`,
 });
