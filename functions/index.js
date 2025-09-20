@@ -4,7 +4,6 @@ const { initializeApp } = require("firebase-admin/app");
 const { genkit } = require("genkit");
 const { googleAI } = require("@genkit-ai/googleai");
 const { firebase } = require("@genkit-ai/firebase");
-const { z } = require('zod');
 
 // Correctly configure ts-node to handle TypeScript modules.
 require("ts-node").register({
