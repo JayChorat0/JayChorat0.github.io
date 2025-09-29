@@ -28,24 +28,14 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
     const { toast } = useToast();
 
-    const handleGetHint = () => {
-        // This function now only sets the dialog to open.
-        // The hint fetching is triggered by a useEffect inside the DialogContent
-        // to ensure it only runs when the dialog is actually visible.
+    const fetchHint = () => {
         setError(null);
         setHint(null);
         setIsOpen(true);
-    };
-
-    const fetchHint = () => {
-        if (hint || error || isPending) return; // Don't fetch if we already have a hint, an error, or are pending
-
         startTransition(async () => {
             try {
                 console.log("Requesting hint for puzzle:", puzzle.aiPuzzleDescription);
-                // The input is now a simple string, not an object.
                 const result = await requestPuzzleHintFunction(puzzle.aiPuzzleDescription);
-
                 const data = result.data as any;
 
                 if (!data.hint) {
@@ -61,7 +51,7 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                 }
             } catch(e: any) {
                 console.error("Firebase Functions call failed:", e);
-                const errorMessage = e.details?.message || e.message || "Failed to generate hint. Please try again later.";
+                const errorMessage = e.details?.message || e.message || "An internal error occurred.";
                 setError(errorMessage);
                  toast({
                     variant: 'destructive',
@@ -75,42 +65,37 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="ghost" className="text-accent hover:text-accent-foreground" onClick={handleGetHint}>
+                <Button variant="ghost" className="text-accent hover:text-accent-foreground" onClick={fetchHint}>
                     <Lightbulb className="mr-2 h-4 w-4" />
                     Need a Hint?
                 </Button>
             </DialogTrigger>
-            {isOpen && (
-                <DialogContent onOpenAutoFocus={(e) => {
-                    e.preventDefault();
-                    fetchHint();
-                }}>
-                    <DialogHeader>
-                        <DialogTitle>AI-Generated Hint</DialogTitle>
-                        <DialogDescription>
-                            Here's a hint to help you solve the puzzle.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="min-h-[100px] flex items-center justify-center">
-                        {isPending ? (
-                            <div className="flex flex-col items-center gap-2">
-                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                <p className="text-muted-foreground">Generating hint...</p>
-                            </div>
-                        ) : error ? (
-                             <Alert variant="destructive">
-                                <AlertTitle>Error</AlertTitle>
-                                <AlertDescription>{error}</AlertDescription>
-                            </Alert>
-                        ) : hint ? (
-                            <p className="text-lg text-center font-medium">{hint}</p>
-                        ) : null}
-                    </div>
-                     <DialogFooter>
-                        <Button onClick={() => setIsOpen(false)}>Close</Button>
-                    </DialogFooter>
-                </DialogContent>
-            )}
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>AI-Generated Hint</DialogTitle>
+                    <DialogDescription>
+                        Here's a hint to help you solve the puzzle.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="min-h-[100px] flex items-center justify-center">
+                    {isPending ? (
+                        <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <p className="text-muted-foreground">Generating hint...</p>
+                        </div>
+                    ) : error ? (
+                         <Alert variant="destructive">
+                            <AlertTitle>Error</AlertTitle>
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    ) : hint ? (
+                        <p className="text-lg text-center font-medium">{hint}</p>
+                    ) : null}
+                </div>
+                 <DialogFooter>
+                    <Button onClick={() => setIsOpen(false)}>Close</Button>
+                </DialogFooter>
+            </DialogContent>
         </Dialog>
     );
 }
