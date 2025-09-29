@@ -1,18 +1,25 @@
-
 {
   "name": "bughunter-functions",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
   "dependencies": {
     "@genkit-ai/firebase": "1.14.1",
     "@genkit-ai/googleai": "1.14.1",
     "firebase-admin": "^12.1.1",
     "firebase-functions": "^5.0.1",
     "genkit": "1.14.1",
-    "ts-node": "^10.9.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "typescript": "^5"
-  }
+  },
+  "private": true
 }
