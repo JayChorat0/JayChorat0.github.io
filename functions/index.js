@@ -1,15 +1,16 @@
 
 const { onCall } = require("firebase-functions/v2/on_call");
 const { initializeApp } = require("firebase-admin/app");
-const { genkit } = require("genkit");
-const { googleAI } = require("@genkit-ai/googleai");
-const { firebase } = require("@genkit-ai/firebase");
 
 // Correctly configure ts-node to handle TypeScript modules.
 require("ts-node").register({
   compilerOptions: {
     module: "commonjs",
     target: "es2017",
+     paths: {
+      "@/*": ["./src/*"],
+    },
+    baseUrl: ".",
   },
 });
 
@@ -19,14 +20,8 @@ const { requestPuzzleHint } = require("../../src/ai/flows/generate-hint.ts");
 
 initializeApp();
 
-genkit({
-  plugins: [
-    googleAI(),
-    firebase(),
-  ],
-  logLevel: "debug",
-  enableTracingAndMetrics: true,
-});
+// NOTE: Genkit is now initialized within the imported flows via `src/ai/genkit.ts`
+// Do not initialize it here again.
 
 exports.generateNewPuzzle = onCall(async (request) => {
   const puzzle = await generateNewPuzzle(request.data);
