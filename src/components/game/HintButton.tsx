@@ -43,10 +43,8 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
         startTransition(async () => {
             try {
                 console.log("Requesting hint for puzzle:", puzzle.aiPuzzleDescription);
-                const result = await requestPuzzleHintFunction({
-                    puzzleDescription: puzzle.aiPuzzleDescription,
-                    userProgress: userProgress || "The user has not tried anything yet.",
-                });
+                // The input is now a simple string, not an object.
+                const result = await requestPuzzleHintFunction(puzzle.aiPuzzleDescription);
 
                 const data = result.data as any;
 
