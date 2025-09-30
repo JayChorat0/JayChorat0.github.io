@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "@/lib/firebase";
+import { auth, Database } from "@/lib/firebase";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
@@ -57,7 +57,7 @@ export default function CyberSleuthPage() {
 
   useEffect(() => {
     if (user) {
-      const userDocRef = doc(db, "users", user.uid);
+      const userDocRef = doc(Database, "users", user.uid);
       
       const unsubscribe = onSnapshot(userDocRef, (userDoc) => {
         if (userDoc.exists()) {
@@ -92,7 +92,7 @@ export default function CyberSleuthPage() {
   const updateServerGameState = async (newState: Partial<GameState>) => {
       if (!user) return;
       startTransition(async () => {
-        const userDocRef = doc(db, "users", user.uid);
+        const userDocRef = doc(Database, "users", user.uid);
         await setDoc(userDocRef, newState, { merge: true });
       });
   }

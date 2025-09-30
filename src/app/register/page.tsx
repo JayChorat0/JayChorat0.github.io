@@ -12,7 +12,7 @@ import { Logo } from '@/components/Logo';
 import { Loader2, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '@/lib/firebase';
+import { auth, Database } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
 
@@ -45,7 +45,7 @@ export default function RegisterPage() {
         const user = userCredential.user;
         
         // Create the user document in Firestore
-        const userDocRef = doc(db, "users", user.uid);
+        const userDocRef = doc(Database, "users", user.uid);
         await setDoc(userDocRef, {
             email: email,
             score: 0,

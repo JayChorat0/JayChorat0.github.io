@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { Database } from '@/lib/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Users } from 'lucide-react';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ export default function AdminPage() {
   useEffect(() => {
     const fetchUserCount = async () => {
       try {
-        const usersCollectionRef = collection(db, 'users');
+        const usersCollectionRef = collection(Database, 'users');
         const querySnapshot = await getDocs(usersCollectionRef);
         setUserCount(querySnapshot.size);
       } catch (err) {
