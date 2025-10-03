@@ -12,11 +12,11 @@
       "@/*": ["../src/*"]
     },
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
   "compileOnSave": true,
   "include": [
-    "index.ts",
-    "puzzle-functions.ts"
+    "index.ts"
   ]
 }

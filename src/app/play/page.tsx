@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, Database } from "@/lib/firebase";
+import { auth, Database, app } from "@/lib/firebase";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
@@ -36,7 +36,7 @@ const endlessCase: Case = {
     puzzles: [],
 };
 
-const functions = getFunctions(undefined, 'us-central1');
+const functions = getFunctions(app, 'us-central1');
 const generateNewPuzzleFunction = httpsCallable<GenerateNewPuzzleInput, GenerateNewPuzzleOutput>(functions, 'generateNewPuzzle');
 
 

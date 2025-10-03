@@ -9,6 +9,7 @@ import { Puzzle } from '@/lib/cases';
 import { Lightbulb, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { app } from '@/lib/firebase';
 import { RequestPuzzleHintInput, RequestPuzzleHintOutput } from '@/ai/flows/generate-hint';
 
 
@@ -17,7 +18,7 @@ interface HintButtonProps {
     userProgress: string;
 }
 
-const functions = getFunctions(undefined, 'us-central1');
+const functions = getFunctions(app, 'us-central1');
 const requestPuzzleHintFunction = httpsCallable<RequestPuzzleHintInput, RequestPuzzleHintOutput>(functions, 'requestPuzzleHint');
 
 
@@ -62,10 +63,18 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
         });
     };
     
+    const handleTriggerClick = () => {
+        if (!isOpen) {
+            fetchHint();
+        } else {
+            setIsOpen(false);
+        }
+    }
+
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="ghost" className="text-accent hover:text-accent-foreground" onClick={fetchHint}>
+                <Button variant="ghost" className="text-accent hover:text-accent-foreground" onClick={handleTriggerClick}>
                     <Lightbulb className="mr-2 h-4 w-4" />
                     Need a Hint?
                 </Button>
