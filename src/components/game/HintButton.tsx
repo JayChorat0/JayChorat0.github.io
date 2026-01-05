@@ -3,7 +3,7 @@
 
 import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Puzzle } from '@/lib/cases';
 import { Lightbulb, Loader2 } from 'lucide-react';
@@ -18,7 +18,7 @@ interface HintButtonProps {
     userProgress: string;
 }
 
-const functions = getFunctions(app);
+const functions = getFunctions(app, 'us-central1');
 const requestPuzzleHintFunction = httpsCallable<RequestPuzzleHintInput, RequestPuzzleHintOutput>(functions, 'requestPuzzleHint');
 
 
