@@ -6,8 +6,8 @@ const { initializeApp } = require("firebase-admin/app");
 initializeApp();
 
 // Since we are compiling, we can now directly require the compiled JS files.
-const puzzleFunctions = require("./index");
+const puzzleFunctions = require("./lib/index");
 
 // Export the functions for deployment.
-exports.generateNewPuzzle = onCall(puzzleFunctions.generateNewPuzzle);
-exports.requestPuzzleHint = onCall(puzzleFunctions.requestPuzzleHint);
+exports.generateNewPuzzle = puzzleFunctions.generateNewPuzzle;
+exports.requestPuzzleHint = puzzleFunctions.requestPuzzleHint;
