@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { cases, type Case, type Puzzle } from "@/lib/cases";
 import { cn } from "@/lib/utils";
 import { ArrowRight, Loader2, Wand2 } from "lucide-react";
-import { GenerateNewPuzzleInput, GenerateNewPuzzleOutput } from "@/ai/flows/generate-puzzle";
+import { GenerateNewPuzzleInput, GenerateNewPuzzleOutput } from "@/lib/types";
 
 
 type GameState = {

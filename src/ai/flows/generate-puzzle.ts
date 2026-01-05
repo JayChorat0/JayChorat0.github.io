@@ -9,14 +9,14 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit/zod';
 import { Puzzle } from '@/lib/cases';
+import { GenerateNewPuzzleInput, GenerateNewPuzzleOutput } from '@/lib/types';
+
 
 const GenerateNewPuzzleInputSchema = z.object({
   lastCaseDescription: z.string().describe("The description of the last case the user successfully completed. This provides context for the new puzzle."),
   existingSolutions: z.array(z.string()).describe("A list of all existing puzzle solutions to avoid creating duplicate puzzles.")
 });
-export type GenerateNewPuzzleInput = z.infer<typeof GenerateNewPuzzleInputSchema>;
 
-export type GenerateNewPuzzleOutput = Puzzle;
 const PuzzleSchema: z.ZodType<Puzzle> = z.object({
     id: z.string().describe("A unique identifier for the puzzle, e.g., 'gen-puzzle-1'."),
     type: z.enum(["email", "website", "terminal"]).describe("The type of puzzle interface to display."),

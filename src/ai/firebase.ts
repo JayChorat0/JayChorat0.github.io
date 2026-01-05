@@ -1,0 +1,4 @@
+// This file is the entry point for Genkit flows when used in a Firebase environment.
+// It is used by the Firebase Functions to discover and register the flows.
+import './flows/generate-hint';
+import './flows/generate-puzzle';
