@@ -10,3 +10,4 @@ const puzzleFunctions = require("./lib/index");
 
 // Export the functions for deployment.
 exports.generateNewPuzzle = puzzleFunctions.generateNewPuzzle;
+exports.requestPuzzleHint = puzzleFunctions.requestPuzzleHint;

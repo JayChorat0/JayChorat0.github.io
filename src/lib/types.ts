@@ -8,3 +8,13 @@ export type GenerateNewPuzzleInput = {
 };
 
 export type GenerateNewPuzzleOutput = Puzzle;
+
+
+export type RequestPuzzleHintInput = {
+    puzzleDescription: string;
+    existingHints: string[];
+};
+
+export type RequestPuzzleHintOutput = {
+    hint: string;
+};

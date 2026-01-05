@@ -16,6 +16,7 @@ import { cases, type Case, type Puzzle } from "@/lib/cases";
 import { cn } from "@/lib/utils";
 import { ArrowRight, Loader2, Wand2 } from "lucide-react";
 import { GenerateNewPuzzleInput, GenerateNewPuzzleOutput } from "@/lib/types";
+import { HintButton } from "@/components/game/HintButton";
 
 
 type GameState = {
@@ -238,6 +239,8 @@ export default function CyberSleuthPage() {
                     {feedback.message}
                 </p>
             )}
+            
+            {!isPuzzleSolved && <HintButton puzzle={currentPuzzle} />}
             
             {isPuzzleSolved && (
                  <Button onClick={handleNext} variant="outline" className="ml-auto" disabled={isPending || isGenerating}>
