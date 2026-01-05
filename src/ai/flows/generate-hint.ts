@@ -37,7 +37,7 @@ Rules for hints:
 2.  Your hint should guide the player in the right direction. For example, if the answer is in an HTML comment, a good hint would be "Sometimes the most important clues aren't visible on the page itself."
 3.  Be creative and maintain the cyber-sleuth theme.
 4.  The hint must be a single sentence.
-5.  Do not repeat any of the following hints that have already been given: {{{jsonStringify existingHints}}}
+5.  Do not repeat any of the following hints that have already been given: {{#each existingHints}}- {{this}} {{/each}}
 
 Generate a new hint for the player now.`,
 });
