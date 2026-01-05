@@ -10,7 +10,6 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 
 import { GameLayout } from "@/components/game/GameLayout";
 import { CaseDisplay } from "@/components/game/CaseDisplay";
-import { HintButton } from "@/components/game/HintButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cases, type Case, type Puzzle } from "@/lib/cases";
@@ -249,11 +248,6 @@ export default function CyberSleuthPage() {
             )}
         </div>
         
-        {!isPuzzleSolved && (
-            <div className="mt-4 border-t border-dashed pt-4">
-                 <HintButton puzzle={currentPuzzle} userProgress={userInput} />
-            </div>
-        )}
       </div>
     </GameLayout>
   );

@@ -3,5 +3,4 @@ config();
 
 // This file is used for local development of Genkit flows.
 // It imports the flows so they can be discovered by the Genkit CLI.
-import './flows/generate-hint.ts';
 import './flows/generate-puzzle.ts';
