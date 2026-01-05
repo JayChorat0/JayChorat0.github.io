@@ -3,7 +3,7 @@
 
 import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Puzzle } from '@/lib/cases';
 import { Lightbulb, Loader2 } from 'lucide-react';
@@ -18,7 +18,7 @@ interface HintButtonProps {
     userProgress: string;
 }
 
-const functions = getFunctions(app, 'us-central1');
+const functions = getFunctions(app);
 const requestPuzzleHintFunction = httpsCallable<RequestPuzzleHintInput, RequestPuzzleHintOutput>(functions, 'requestPuzzleHint');
 
 
@@ -32,11 +32,10 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
     const fetchHint = () => {
         setError(null);
         setHint(null);
-        setIsOpen(true);
         startTransition(async () => {
             try {
                 console.log("Requesting hint for puzzle:", puzzle.aiPuzzleDescription);
-                const result = await requestPuzzleHintFunction(puzzle.aiPuzzleDescription);
+                const result = await requestPuzzleHintFunction({ puzzleDescription: puzzle.aiPuzzleDescription });
                 const data = result.data as any;
 
                 if (!data.hint) {
@@ -52,7 +51,7 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
                 }
             } catch(e: any) {
                 console.error("Firebase Functions call failed:", e);
-                const errorMessage = e.details?.message || e.message || "An internal error occurred.";
+                const errorMessage = e.message || "An internal error occurred while fetching the hint.";
                 setError(errorMessage);
                  toast({
                     variant: 'destructive',
@@ -63,18 +62,17 @@ export function HintButton({ puzzle, userProgress }: HintButtonProps) {
         });
     };
     
-    const handleTriggerClick = () => {
-        if (!isOpen) {
+    const handleOpenChange = (open: boolean) => {
+        setIsOpen(open);
+        if (open && !hint && !isPending && !error) {
             fetchHint();
-        } else {
-            setIsOpen(false);
         }
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-                <Button variant="ghost" className="text-accent hover:text-accent-foreground" onClick={handleTriggerClick}>
+                <Button variant="ghost" className="text-accent hover:text-accent-foreground">
                     <Lightbulb className="mr-2 h-4 w-4" />
                     Need a Hint?
                 </Button>

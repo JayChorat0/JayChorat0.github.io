@@ -9,9 +9,10 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit/zod';
 
-// The input is now just a string containing the puzzle description.
-export type RequestPuzzleHintInput = string;
-const RequestPuzzleHintInputSchema = z.string();
+export const RequestPuzzleHintInputSchema = z.object({
+    puzzleDescription: z.string().describe("A brief, clear description for an AI explaining what the user needs to do to solve a puzzle. Used for generating hints."),
+});
+export type RequestPuzzleHintInput = z.infer<typeof RequestPuzzleHintInputSchema>;
 
 const RequestPuzzleHintOutputSchema = z.object({
   hint: z.string().describe('A helpful hint for the current puzzle.'),
@@ -30,7 +31,7 @@ const requestPuzzleHintPrompt = ai.definePrompt({
 
   Provide a hint to help the user with the following puzzle. The hint should not directly give away the answer but guide the user towards a solution.
 
-Puzzle Description: {{{prompt}}}
+Puzzle Description: {{{puzzleDescription}}}
 
 Hint: `,
 });
