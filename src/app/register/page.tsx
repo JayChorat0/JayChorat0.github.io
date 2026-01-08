@@ -51,6 +51,7 @@ export default function RegisterPage() {
             score: 0,
             solvedPuzzles: [],
             endlessPuzzles: [],
+            hintedPuzzles: [],
             currentCaseIndex: 0,
             currentPuzzleIndex: 0,
         });

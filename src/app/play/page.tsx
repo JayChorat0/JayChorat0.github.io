@@ -25,6 +25,7 @@ type GameState = {
   score: number;
   solvedPuzzles: string[];
   endlessPuzzles?: Puzzle[];
+  hintedPuzzles?: string[];
 };
 
 const allSolutions = cases.flatMap(c => c.puzzles.map(p => p.solution));
@@ -68,6 +69,7 @@ export default function CyberSleuthPage() {
               score: data.score ?? 0,
               solvedPuzzles: data.solvedPuzzles ?? [],
               endlessPuzzles: data.endlessPuzzles ?? [],
+              hintedPuzzles: data.hintedPuzzles ?? [],
           });
         } else {
             console.log("User document not found, creating one.");
@@ -76,6 +78,7 @@ export default function CyberSleuthPage() {
                 score: 0,
                 solvedPuzzles: [],
                 endlessPuzzles: [],
+                hintedPuzzles: [],
                 currentCaseIndex: 0,
                 currentPuzzleIndex: 0,
             };
@@ -160,6 +163,21 @@ export default function CyberSleuthPage() {
     }
   };
   
+  const handleHintUsed = () => {
+    if (!currentPuzzle || !gameState || (gameState.hintedPuzzles || []).includes(currentPuzzle.id)) {
+      return;
+    }
+    
+    console.log("Hint used for the first time on this puzzle. Deducting points.");
+    const newScore = Math.max(0, gameState.score - 10);
+    const newHintedPuzzles = [...(gameState.hintedPuzzles || []), currentPuzzle.id];
+
+    updateServerGameState({ 
+      score: newScore,
+      hintedPuzzles: newHintedPuzzles,
+    });
+  }
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!userInput.trim() || isPuzzleSolved || isPending || !currentPuzzle) return;
@@ -240,7 +258,7 @@ export default function CyberSleuthPage() {
                 </p>
             )}
             
-            {!isPuzzleSolved && <HintButton puzzle={currentPuzzle} />}
+            {!isPuzzleSolved && <HintButton puzzle={currentPuzzle} onHintUsed={handleHintUsed} />}
             
             {isPuzzleSolved && (
                  <Button onClick={handleNext} variant="outline" className="ml-auto" disabled={isPending || isGenerating}>

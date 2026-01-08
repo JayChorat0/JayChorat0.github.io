@@ -16,9 +16,10 @@ import { Puzzle } from '@/lib/cases';
 
 interface HintButtonProps {
   puzzle: Puzzle;
+  onHintUsed: () => void;
 }
 
-export function HintButton({ puzzle }: HintButtonProps) {
+export function HintButton({ puzzle, onHintUsed }: HintButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [shownHints, setShownHints] = useState<string[]>([]);
   const [currentHint, setCurrentHint] = useState<string | null>(null);
@@ -33,7 +34,10 @@ export function HintButton({ puzzle }: HintButtonProps) {
     const availableHints = puzzle.hints.filter(h => !shownHints.includes(h));
     
     if (availableHints.length > 0) {
-      const newHint = availableHints[Math.floor(Math.random() * availableHints.length)];
+      if (shownHints.length === 0) {
+        onHintUsed();
+      }
+      const newHint = availableHints[0]; // Get the next available hint
       setShownHints(prev => [...prev, newHint]);
       setCurrentHint(newHint);
     } else {
@@ -44,7 +48,8 @@ export function HintButton({ puzzle }: HintButtonProps) {
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-        setCurrentHint(null); // Clear hint when dialog closes
+        // We don't clear the current hint when closing
+        // so the user can re-read it.
     }
     setIsOpen(open);
   };
@@ -53,7 +58,13 @@ export function HintButton({ puzzle }: HintButtonProps) {
     return null; // Don't render the button if there are no hints
   }
 
-  const buttonText = shownHints.length > 0 ? "Get Another Hint" : "Need a Hint?";
+  const allHintsShown = shownHints.length === puzzle.hints.length;
+  const buttonText = allHintsShown 
+    ? "All Hints Shown" 
+    : shownHints.length > 0 
+      ? "Get Another Hint" 
+      : "Need a Hint? (-10 Pts)";
+
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -62,6 +73,7 @@ export function HintButton({ puzzle }: HintButtonProps) {
             variant="ghost" 
             className="text-accent hover:text-accent-foreground"
             onClick={getNewHint}
+            disabled={allHintsShown}
         >
           <Lightbulb className="mr-2 h-4 w-4" />
           {buttonText}
