@@ -1,9 +1,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app } from '@/lib/firebase';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -13,58 +11,47 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Lightbulb, Loader2 } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 import { Puzzle } from '@/lib/cases';
-import { RequestPuzzleHintInput, RequestPuzzleHintOutput } from '@/lib/types';
 
 interface HintButtonProps {
   puzzle: Puzzle;
 }
 
-const functions = getFunctions(app, 'us-central1');
-const requestPuzzleHintFunction = httpsCallable<
-  RequestPuzzleHintInput,
-  RequestPuzzleHintOutput
->(functions, 'requestPuzzleHint');
-
 export function HintButton({ puzzle }: HintButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hint, setHint] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [existingHints, setExistingHints] = useState<string[]>([]);
+  const [currentHintIndex, setCurrentHintIndex] = useState(0);
+  const [revealedHints, setRevealedHints] = useState<string[]>([]);
 
-  const handleGenerateHint = async () => {
-    if (isLoading) return;
-    setIsLoading(true);
-    setError(null);
+  // Reset hints when the puzzle changes
+  useEffect(() => {
+    setCurrentHintIndex(0);
+    setRevealedHints([]);
+  }, [puzzle.id]);
 
-    try {
-      const result = await requestPuzzleHintFunction({
-        puzzleDescription: puzzle.aiPuzzleDescription,
-        existingHints,
-      });
-      const newHint = result.data.hint;
-      setHint(newHint);
-      setExistingHints((prev) => [...prev, newHint]);
-    } catch (e: any) {
-      console.error(e);
-      setError('Failed to generate hint. The AI may be offline. Please try again later.');
-      // Keep previous hint if available
-    } finally {
-      setIsLoading(false);
+  const handleShowHint = () => {
+    if (puzzle.hints && puzzle.hints.length > 0) {
+      if (currentHintIndex < puzzle.hints.length) {
+        setRevealedHints(prev => [...prev, puzzle.hints[currentHintIndex]]);
+        setCurrentHintIndex(prev => prev + 1);
+      }
     }
   };
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      // Reset state when dialog is closed
-      setHint(null);
-      setError(null);
-      setIsLoading(false);
+      // Optional: reset hints when dialog is closed, or let them persist
+      // setCurrentHintIndex(0);
+      // setRevealedHints([]);
     }
   };
+
+  if (!puzzle.hints || puzzle.hints.length === 0) {
+    return null; // Don't render the button if there are no hints
+  }
+
+  const noMoreHints = currentHintIndex >= puzzle.hints.length;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -81,34 +68,43 @@ export function HintButton({ puzzle }: HintButtonProps) {
             Mission Hint
           </DialogTitle>
           <DialogDescription>
-            Requesting a hint from Agency command. This may take a moment.
+            Here are some hints to get you on the right track.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-4 min-h-[6rem] flex items-center justify-center rounded-md border border-dashed p-4 text-center">
-          {isLoading ? (
-            <div className="flex flex-col items-center gap-2">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              <p className="text-muted-foreground">Generating hint...</p>
-            </div>
-          ) : error ? (
-            <p className="text-destructive">{error}</p>
-          ) : hint ? (
-            <p className="text-lg font-semibold text-accent-foreground">{hint}</p>
+        <div className="my-4 min-h-[6rem] space-y-2 rounded-md border border-dashed p-4">
+          {revealedHints.length > 0 ? (
+            revealedHints.map((hint, index) => (
+              <p key={index} className="text-accent-foreground animate-fade-in">
+                <span className="font-semibold">Hint {index + 1}:</span> {hint}
+              </p>
+            ))
           ) : (
-             <p className="text-muted-foreground">Click the button below to generate a hint.</p>
+            <p className="text-muted-foreground text-center">Click the button below to reveal a hint.</p>
           )}
+           {noMoreHints && revealedHints.length > 0 && (
+             <p className="text-sm text-muted-foreground pt-2 border-t border-dashed text-center mt-2">No more hints available for this puzzle.</p>
+           )}
         </div>
 
-        <Button onClick={handleGenerateHint} disabled={isLoading} className="w-full">
-          {isLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Lightbulb className="mr-2 h-4 w-4" />
-          )}
-          {hint ? 'Generate a different hint' : 'Generate Hint'}
+        <Button onClick={handleShowHint} disabled={noMoreHints} className="w-full">
+          <Lightbulb className="mr-2 h-4 w-4" />
+          {revealedHints.length > 0 ? 'Show Next Hint' : 'Show Hint'}
         </Button>
       </DialogContent>
+       <style jsx>{`
+            @keyframes fade-in {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            .animate-fade-in {
+                animation: fade-in 0.5s ease-in-out forwards;
+            }
+      `}</style>
     </Dialog>
   );
 }

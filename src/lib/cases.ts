@@ -9,6 +9,7 @@ export interface Puzzle {
   solution: string;
   points: number;
   aiPuzzleDescription: string;
+  hints: string[];
 }
 
 export interface Case {
@@ -38,7 +39,12 @@ export const cases: Case[] = [
         prompt: "What is the true domain name of the suspicious link?",
         solution: "evil-corp.net",
         points: 50,
-        aiPuzzleDescription: "The user is analyzing a phishing email. They need to find the actual destination URL of a hyperlink, which is different from the link text."
+        aiPuzzleDescription: "The user is analyzing a phishing email. They need to find the actual destination URL of a hyperlink, which is different from the link text.",
+        hints: [
+          "Hover your mouse over the link to see the real destination.",
+          "The text of a link can be different from where it actually goes.",
+          "Inspect the link's 'href' attribute in the HTML."
+        ]
       },
       {
         id: "c01p02",
@@ -56,7 +62,12 @@ export const cases: Case[] = [
         prompt: "What is the keyword left by the hacker on the page?",
         solution: "sentinel",
         points: 25,
-        aiPuzzleDescription: "The user is looking at a defaced webpage. They need to find a specific keyword that is clearly visible in the text content of the page."
+        aiPuzzleDescription: "The user is looking at a defaced webpage. They need to find a specific keyword that is clearly visible in the text content of the page.",
+        hints: [
+          "The keyword is visible on the page without needing to inspect the source code.",
+          "Look for the word highlighted in green.",
+          "The hacker explicitly mentions a 'keyword'."
+        ]
       }
     ],
   },
@@ -81,7 +92,12 @@ export const cases: Case[] = [
         prompt: "What is the name of the hidden file?",
         solution: ".secret_plans",
         points: 100,
-        aiPuzzleDescription: "The user is looking at the output of 'ls -la' in a Linux terminal. They need to identify the hidden file, which starts with a dot."
+        aiPuzzleDescription: "The user is looking at the output of 'ls -la' in a Linux terminal. They need to identify the hidden file, which starts with a dot.",
+        hints: [
+          "In Linux, files starting with a period (.) are hidden by default.",
+          "The '-a' flag in 'ls -la' command shows all files, including hidden ones.",
+          "Look for a filename that begins with a dot."
+        ]
       }
     ]
   },
@@ -102,7 +118,12 @@ export const cases: Case[] = [
         prompt: "The ransom note appears to be Base64 encoded. What is the decoded message?",
         solution: "Your files are encrypted. Pay 10 bitcoin to get them back.",
         points: 75,
-        aiPuzzleDescription: "The user is presented with a Base64 encoded string in a terminal. They need to decode it to reveal the hidden message."
+        aiPuzzleDescription: "The user is presented with a Base64 encoded string in a terminal. They need to decode it to reveal the hidden message.",
+        hints: [
+          "This type of encoding is common on the web. Try searching for an online 'Base64 decoder'.",
+          "The '==' at the end is often a sign of Base64 encoding.",
+          "Copy the encoded string and paste it into a decoder tool."
+        ]
       },
       {
         id: "c03p02",
@@ -119,7 +140,12 @@ export const cases: Case[] = [
         prompt: "The source code mentions a hint related to the ransom currency. What is the full URL of the payment portal?",
         solution: "http://evil-corp.net/bitcoin",
         points: 100,
-        aiPuzzleDescription: "The user is on a website and needs to find a hidden page. A comment in the HTML source code hints that the path name is related to the currency mentioned in the previous puzzle (bitcoin)."
+        aiPuzzleDescription: "The user is on a website and needs to find a hidden page. A comment in the HTML source code hints that the path name is related to the currency mentioned in the previous puzzle (bitcoin).",
+        hints: [
+          "Look for clues that aren't visible on the webpage itself.",
+          "View the page's HTML source code for hidden comments.",
+          "The currency mentioned in the previous puzzle is the key to the path."
+        ]
       }
     ]
   },
@@ -144,7 +170,12 @@ export const cases: Case[] = [
         prompt: "Which IP address downloaded the sensitive 'finances.zip' file?",
         solution: "203.0.113.78",
         points: 100,
-        aiPuzzleDescription: "The user is shown a snippet of a server log file. They need to find the IP address associated with the download of a specific sensitive file mentioned in the log."
+        aiPuzzleDescription: "The user is shown a snippet of a server log file. They need to find the IP address associated with the download of a specific sensitive file mentioned in the log.",
+        hints: [
+          "Each line in the log represents a request.",
+          "Find the line that contains 'finances.zip'.",
+          "The IP address is the first part of each log entry."
+        ]
       },
       {
         id: "c04p02",
@@ -165,7 +196,12 @@ export const cases: Case[] = [
         prompt: "Assemble the key fragments in the correct order (Part 1, Part 2, etc.).",
         solution: "AbC14FgH8JkLMnOp",
         points: 125,
-        aiPuzzleDescription: "The user is presented with a list of key fragments that are out of order. They need to reassemble them into a single string based on the part numbers provided."
+        aiPuzzleDescription: "The user is presented with a list of key fragments that are out of order. They need to reassemble them into a single string based on the part numbers provided.",
+        hints: [
+          "The fragments are labeled with their correct order.",
+          "Combine the strings in numerical order of the 'Part' labels.",
+          "The final key is a single string with no spaces."
+        ]
       }
     ]
   },
@@ -190,7 +226,12 @@ export const cases: Case[] = [
         prompt: "The attacker hid a code word in the HTML of the profile page. What is it?",
         solution: "ProjectEagle",
         points: 100,
-        aiPuzzleDescription: "The user is analyzing a fake social media profile page. They need to inspect the HTML source to find a hidden comment containing a code word."
+        aiPuzzleDescription: "The user is analyzing a fake social media profile page. They need to inspect the HTML source to find a hidden comment containing a code word.",
+        hints: [
+          "Sometimes messages are hidden from view in the page's code.",
+          "Check the HTML source for any comments.",
+          "HTML comments look like <!-- this -->."
+        ]
       },
       {
         id: "c05p02",
@@ -206,7 +247,12 @@ export const cases: Case[] = [
         prompt: "The link in the email downloads a file. What is the full filename of the download?",
         solution: "ProjectEagle.exe",
         points: 125,
-        aiPuzzleDescription: "The user is analyzing a phishing email. They need to identify the full filename, including the extension, of the file that would be downloaded from the hyperlink."
+        aiPuzzleDescription: "The user is analyzing a phishing email. They need to identify the full filename, including the extension, of the file that would be downloaded from the hyperlink.",
+        hints: [
+          "The actual link destination reveals the file that will be downloaded.",
+          "Inspect the 'href' attribute of the link.",
+          "Executable files on Windows often end with '.exe'."
+        ]
       }
     ]
   },
@@ -230,7 +276,12 @@ export const cases: Case[] = [
         prompt: "A domain in the logs looks suspicious and is likely used for data exfiltration. What is the suspicious domain?",
         solution: "a7b3c1d9.secret-data.net",
         points: 150,
-        aiPuzzleDescription: "The user is viewing DNS query logs. They need to identify a strange-looking domain that doesn't fit the pattern of legitimate corporate domains, suggesting it's used for data exfiltration."
+        aiPuzzleDescription: "The user is viewing DNS query logs. They need to identify a strange-looking domain that doesn't fit the pattern of legitimate corporate domains, suggesting it's used for data exfiltration.",
+        hints: [
+          "Look for a domain that doesn't look like the others.",
+          "Attackers often use randomized subdomains to exfiltrate data.",
+          "The legitimate domains are 'google.com' and 'corp.com'."
+        ]
       },
       {
         id: "c06p02",
@@ -249,7 +300,12 @@ export const cases: Case[] = [
         prompt: "The leaked data contains a 'flag'. What is the value of the flag?",
         solution: "{CYBER_HUNTER_MASTER}",
         points: 100,
-        aiPuzzleDescription: "The user is viewing a text snippet on a webpage that represents leaked data. They need to find and copy the value of the 'FLAG' contained within the text."
+        aiPuzzleDescription: "The user is viewing a text snippet on a webpage that represents leaked data. They need to find and copy the value of the 'FLAG' contained within the text.",
+        hints: [
+          "Flags are often used in cybersecurity challenges to mark a final answer.",
+          "The format is typically FLAG: {some_value}.",
+          "Copy the entire value, including the curly braces."
+        ]
       }
     ]
   },
@@ -275,7 +331,12 @@ export const cases: Case[] = [
         prompt: "One of these devices has a suspicious hostname. What is it?",
         solution: "pwn-box",
         points: 150,
-        aiPuzzleDescription: "The user is looking at a list of devices on a network from an nmap scan. They need to identify the device with a name that implies malicious intent."
+        aiPuzzleDescription: "The user is looking at a list of devices on a network from an nmap scan. They need to identify the device with a name that implies malicious intent.",
+        hints: [
+          "Device hostnames usually describe their function (like 'Server' or 'Printer').",
+          "Look for a hostname that sounds like slang used by hackers.",
+          "The term 'pwn' is often used in hacking to mean 'own' or compromise."
+        ]
       }
     ]
   },
@@ -301,7 +362,12 @@ export const cases: Case[] = [
         prompt: "The malware contacts a Command & Control (C2) server. The address is Base64 encoded. What is the decoded C2 domain?",
         solution: "evil-c2.info/",
         points: 200,
-        aiPuzzleDescription: "The user is looking at a snippet of code. They need to find a Base64 encoded string, decode it, to find the malware's command and control server domain."
+        aiPuzzleDescription: "The user is looking at a snippet of code. They need to find a Base64 encoded string, decode it, to find the malware's command and control server domain.",
+        hints: [
+          "The function `atob()` in JavaScript is used to decode Base64 strings.",
+          "Find the Base64 string inside the atob() function call.",
+          "Use an online Base64 decoder to find the hidden domain."
+        ]
       }
     ]
   }

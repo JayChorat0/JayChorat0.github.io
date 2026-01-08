@@ -1,7 +1,7 @@
 
 import { onCall } from "firebase-functions/v2/on_call";
 import { initializeApp } from "firebase-admin/app";
-import { GenerateNewPuzzleInput, GenerateNewPuzzleOutput, RequestPuzzleHintInput, RequestPuzzleHintOutput } from "@/lib/types";
+import { GenerateNewPuzzleInput, GenerateNewPuzzleOutput } from "@/lib/types";
 
 // Initialize Firebase app FIRST
 initializeApp();
@@ -12,9 +12,7 @@ initializeApp();
 import './src/ai/firebase'; 
 
 import { generateNewPuzzle as generateNewPuzzleFlow } from "../src/ai/flows/generate-puzzle";
-import { requestPuzzleHint as requestPuzzleHintFlow } from "../src/ai/flows/generate-hint";
 
 
 // Export the functions for deployment.
 exports.generateNewPuzzle = onCall<GenerateNewPuzzleInput, Promise<GenerateNewPuzzleOutput>>(generateNewPuzzleFlow);
-exports.requestPuzzleHint = onCall<RequestPuzzleHintInput, Promise<RequestPuzzleHintOutput>>(requestPuzzleHintFlow);
