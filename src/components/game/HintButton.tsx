@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -28,7 +28,8 @@ export function HintButton({ puzzle }: HintButtonProps) {
     }
     const randomIndex = Math.floor(Math.random() * puzzle.hints.length);
     return puzzle.hints[randomIndex];
-  }, [puzzle.id, puzzle.hints]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [puzzle.id]); // Rerun only when puzzle ID changes
 
 
   const handleOpenChange = (open: boolean) => {
@@ -59,7 +60,7 @@ export function HintButton({ puzzle }: HintButtonProps) {
         </DialogHeader>
 
         <div className="my-4 min-h-[6rem] flex items-center justify-center rounded-md border border-dashed p-4">
-          <p className="text-accent-foreground animate-fade-in text-center text-lg">
+          <p className="text-accent animate-fade-in text-center text-lg">
             {randomHint}
           </p>
         </div>
