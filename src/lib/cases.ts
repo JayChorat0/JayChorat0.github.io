@@ -43,7 +43,8 @@ export const cases: Case[] = [
         hints: [
           "Hover your mouse over the link to see the real destination.",
           "The text of a link can be different from where it actually goes.",
-          "Inspect the link's 'href' attribute in the HTML."
+          "Inspect the link's 'href' attribute in the HTML.",
+          "The link text is designed to be deceptive."
         ]
       },
       {
@@ -66,7 +67,8 @@ export const cases: Case[] = [
         hints: [
           "The keyword is visible on the page without needing to inspect the source code.",
           "Look for the word highlighted in green.",
-          "The hacker explicitly mentions a 'keyword'."
+          "The hacker explicitly mentions a 'keyword'.",
+          "The solution is not hidden in the source code."
         ]
       }
     ],
@@ -96,7 +98,8 @@ export const cases: Case[] = [
         hints: [
           "In Linux, files starting with a period (.) are hidden by default.",
           "The '-a' flag in 'ls -la' command shows all files, including hidden ones.",
-          "Look for a filename that begins with a dot."
+          "Look for a filename that begins with a dot.",
+          "The file is not 'notes.txt'."
         ]
       }
     ]
@@ -122,7 +125,8 @@ export const cases: Case[] = [
         hints: [
           "This type of encoding is common on the web. Try searching for an online 'Base64 decoder'.",
           "The '==' at the end is often a sign of Base64 encoding.",
-          "Copy the encoded string and paste it into a decoder tool."
+          "Copy the encoded string and paste it into a decoder tool.",
+          "The decoded message is a sentence in English."
         ]
       },
       {
@@ -144,7 +148,8 @@ export const cases: Case[] = [
         hints: [
           "Look for clues that aren't visible on the webpage itself.",
           "View the page's HTML source code for hidden comments.",
-          "The currency mentioned in the previous puzzle is the key to the path."
+          "The currency mentioned in the previous puzzle is the key to the path.",
+          "The base URL is 'http://evil-corp.net'."
         ]
       }
     ]
@@ -174,7 +179,8 @@ export const cases: Case[] = [
         hints: [
           "Each line in the log represents a request.",
           "Find the line that contains 'finances.zip'.",
-          "The IP address is the first part of each log entry."
+          "The IP address is the first part of each log entry.",
+          "The correct IP address starts with '203'."
         ]
       },
       {
@@ -200,7 +206,8 @@ export const cases: Case[] = [
         hints: [
           "The fragments are labeled with their correct order.",
           "Combine the strings in numerical order of the 'Part' labels.",
-          "The final key is a single string with no spaces."
+          "The final key is a single string with no spaces.",
+          "The key starts with 'AbC1'."
         ]
       }
     ]
@@ -230,7 +237,8 @@ export const cases: Case[] = [
         hints: [
           "Sometimes messages are hidden from view in the page's code.",
           "Check the HTML source for any comments.",
-          "HTML comments look like <!-- this -->."
+          "HTML comments look like <!-- this -->.",
+          "The code word is related to a project."
         ]
       },
       {
@@ -251,7 +259,8 @@ export const cases: Case[] = [
         hints: [
           "The actual link destination reveals the file that will be downloaded.",
           "Inspect the 'href' attribute of the link.",
-          "Executable files on Windows often end with '.exe'."
+          "Executable files on Windows often end with '.exe'.",
+          "The filename is the same as the code word from the previous puzzle."
         ]
       }
     ]
@@ -280,7 +289,8 @@ export const cases: Case[] = [
         hints: [
           "Look for a domain that doesn't look like the others.",
           "Attackers often use randomized subdomains to exfiltrate data.",
-          "The legitimate domains are 'google.com' and 'corp.com'."
+          "The legitimate domains are 'google.com' and 'corp.com'.",
+          "The suspicious domain contains 'secret-data'."
         ]
       },
       {
@@ -304,7 +314,8 @@ export const cases: Case[] = [
         hints: [
           "Flags are often used in cybersecurity challenges to mark a final answer.",
           "The format is typically FLAG: {some_value}.",
-          "Copy the entire value, including the curly braces."
+          "Copy the entire value, including the curly braces.",
+          "The flag is designed to be easy to spot."
         ]
       }
     ]
@@ -335,7 +346,8 @@ export const cases: Case[] = [
         hints: [
           "Device hostnames usually describe their function (like 'Server' or 'Printer').",
           "Look for a hostname that sounds like slang used by hackers.",
-          "The term 'pwn' is often used in hacking to mean 'own' or compromise."
+          "The term 'pwn' is often used in hacking to mean 'own' or compromise.",
+          "The other hostnames seem to belong on a corporate network."
         ]
       }
     ]
@@ -366,7 +378,8 @@ export const cases: Case[] = [
         hints: [
           "The function `atob()` in JavaScript is used to decode Base64 strings.",
           "Find the Base64 string inside the atob() function call.",
-          "Use an online Base64 decoder to find the hidden domain."
+          "Use an online Base64 decoder to find the hidden domain.",
+          "The decoded value will end with a '/'."
         ]
       }
     ]
